@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DK BAJJI 1</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0c1020;color:white;font-family:Arial,sans-serif}
+header{padding:20px;background:#171d35;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:23px;font-weight:bold;color:#ffc44d}
+main{padding:16px;max-width:650px;margin:auto}
+.banner{background:linear-gradient(120deg,#6c36d9,#152e75);padding:25px;border-radius:16px;margin:15px 0}
+.banner h2{font-size:25px;margin:0 0 8px}
+.balance{background:#1a2340;padding:20px;border-radius:15px;margin:16px 0}
+.balance strong{font-size:30px;color:#ffc44d}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:bold;cursor:pointer}
+.gold{background:#ffc44d;color:#171717}
+.dark{background:#293554;color:white}
+h3{margin-top:25px}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.game{background:#1a2340;border-radius:14px;padding:18px;text-align:center}
+.game .emoji{font-size:38px}
+.game p{color:#b9c3dc;font-size:13px}
+.notice{color:#aeb9d2;font-size:12px;line-height:1.6}
+footer{text-align:center;color:#8791aa;padding:25px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">🎮 DK BAJJI 1</div>
+ <div>👤 Player</div>
+</header>
+<main>
+ <section class="banner">
+  <h2>Welcome to DK BAJJI 1</h2>
+  <p>Play • Enjoy • Collect Coins</p>
+  <button class="gold" onclick="alert('গেম শিগগিরই যুক্ত হবে!')">Explore Games</button>
+ </section>
+
+ <section class="balance">
+  <p>🪙 Your Coin Balance</p>
+  <strong id="coins">1000</strong>
+  <p>Demo Coins</p>
+  <div class="actions">
+   <button class="gold" onclick="walletInfo('Deposit')">＋ Deposit</button>
+   <button class="dark" onclick="walletInfo('Withdraw')">↗ Withdraw</button>
+  </div>
+ </section>
+
+ <h3>🎯 Popular Games</h3>
+ <section class="games">
+  <div class="game">
+   <div class="emoji">🎰</div>
+   <h3>PG Game</h3>
+   <p>Coming Soon</p>
+   <button class="gold" onclick="comingSoon()">Play</button>
+  </div>
+  <div class="game">
+   <div class="emoji">💎</div>
+   <h3>Jelly Game</h3>
+   <p>Coming Soon</p>
+   <button class="gold" onclick="comingSoon()">Play</button>
+  </div>
+  <div class="game">
+   <div class="emoji">🃏</div>
+   <h3>Card Game</h3>
+   <p>Coming Soon</p>
+   <button class="gold" onclick="comingSoon()">Play</button>
+  </div>
+  <div class="game">
+   <div class="emoji">🏆</div>
+   <h3>More Games</h3>
+   <p>Coming Soon</p>
+   <button class="gold" onclick="comingSoon()">Explore</button>
+  </div>
+ </section>
+
+ <h3>📢 Notice</h3>
+ <section class="balance">
+  <p>Welcome to DK BAJJI 1!</p>
+  <p class="notice">এটি একটি প্রাথমিক ডেমো। এখানে কোনো আসল টাকা জমা, উত্তোলন বা পুরস্কার দেওয়া হয় না।</p>
+ </section>
+</main>
+<footer>© 2026 DK BAJJI 1</footer>
+<script>
+function comingSoon(){
+ alert("এই গেমটি এখনো যুক্ত করা হয়নি।");
+}
+function walletInfo(type){
+ alert(type+" ব্যবস্থা এখন ডেমো মোডে আছে। আসল লেনদেন চালু নেই।");
+}
+</script>
+</body>
+</html>
