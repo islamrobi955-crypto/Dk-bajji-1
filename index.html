@@ -1,97 +1,218 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DK BAJJI 1</title>
+<meta name="theme-color" content="#080808">
+<title>BIKASH12 Gaming</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0c1020;color:white;font-family:Arial,sans-serif}
-header{padding:20px;background:#171d35;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:23px;font-weight:bold;color:#ffc44d}
-main{padding:16px;max-width:650px;margin:auto}
-.banner{background:linear-gradient(120deg,#6c36d9,#152e75);padding:25px;border-radius:16px;margin:15px 0}
-.banner h2{font-size:25px;margin:0 0 8px}
-.balance{background:#1a2340;padding:20px;border-radius:15px;margin:16px 0}
-.balance strong{font-size:30px;color:#ffc44d}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:bold;cursor:pointer}
-.gold{background:#ffc44d;color:#171717}
-.dark{background:#293554;color:white}
-h3{margin-top:25px}
-.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.game{background:#1a2340;border-radius:14px;padding:18px;text-align:center}
-.game .emoji{font-size:38px}
-.game p{color:#b9c3dc;font-size:13px}
-.notice{color:#aeb9d2;font-size:12px;line-height:1.6}
-footer{text-align:center;color:#8791aa;padding:25px}
+body{
+ margin:0;background:#080808;color:#fff;
+ font-family:Arial,sans-serif;
+}
+header{
+ background:#111;padding:18px;
+ border-bottom:2px solid #d6a629;
+ display:flex;justify-content:space-between;
+ align-items:center;flex-wrap:wrap;gap:10px;
+}
+.logo{font-size:25px;font-weight:bold;color:#f4c542}
+.logo span{color:white}
+main{max-width:650px;margin:auto;padding:16px}
+.card{
+ background:#151515;border:1px solid #a77d20;
+ border-radius:14px;padding:18px;margin:15px 0;
+}
+h2{color:#f4c542;margin-top:0}
+input{
+ width:100%;padding:13px;margin:8px 0;
+ border-radius:8px;border:1px solid #777;
+ background:#222;color:white;font-size:16px;
+}
+button{
+ background:linear-gradient(135deg,#f7d66a,#b47b0b);
+ color:#111;border:0;border-radius:9px;
+ padding:12px 18px;font-weight:bold;
+ font-size:15px;cursor:pointer;margin:5px;
+}
+button:disabled{opacity:.5}
+.balance{
+ font-size:28px;color:#f4c542;font-weight:bold;
+}
+.games{
+ display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+.game{
+ background:#222;border:1px solid #9d741d;
+ border-radius:12px;padding:18px;text-align:center;
+}
+.game .emoji{font-size:35px}
+.slot{
+ font-size:48px;text-align:center;
+ letter-spacing:8px;background:#080808;
+ border:1px solid #c99b2d;border-radius:12px;
+ padding:20px;margin:15px 0;
+}
+.small{font-size:12px;color:#aaa}
+.hidden{display:none}
+#message{color:#f4c542;min-height:24px}
+footer{text-align:center;color:#888;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
+
 <header>
- <div class="logo">🎮 DK BAJJI 1</div>
- <div>👤 Player</div>
+ <div class="logo">BIKASH<span>12</span></div>
+ <div id="userLabel">Gaming Club</div>
 </header>
+
 <main>
- <section class="banner">
-  <h2>Welcome to DK BAJJI 1</h2>
-  <p>Play • Enjoy • Collect Coins</p>
-  <button class="gold" onclick="alert('গেম শিগগিরই যুক্ত হবে!')">Explore Games</button>
+ <section id="login" class="card">
+  <h2>স্বাগতম BIKASH12-এ</h2>
+  <p>আপনার নাম লিখে প্রবেশ করুন</p>
+  <input id="playerName" placeholder="আপনার নাম">
+  <button onclick="login()">প্রবেশ করুন</button>
  </section>
 
- <section class="balance">
-  <p>🪙 Your Coin Balance</p>
-  <strong id="coins">1000</strong>
-  <p>Demo Coins</p>
-  <div class="actions">
-   <button class="gold" onclick="walletInfo('Deposit')">＋ Deposit</button>
-   <button class="dark" onclick="walletInfo('Withdraw')">↗ Withdraw</button>
+ <section id="dashboard" class="hidden">
+  <div class="card">
+   <h2>আপনার ওয়ালেট</h2>
+   <div class="balance"><span id="coins">0</span> কয়েন</div>
+   <p class="small">আপনার ভার্চুয়াল গেমিং কয়েন</p>
+   <button onclick="dailyBonus()">দৈনিক বোনাস নিন</button>
+   <p id="bonusMessage"></p>
   </div>
- </section>
 
- <h3>🎯 Popular Games</h3>
- <section class="games">
-  <div class="game">
-   <div class="emoji">🎰</div>
-   <h3>PG Game</h3>
-   <p>Coming Soon</p>
-   <button class="gold" onclick="comingSoon()">Play</button>
+  <div class="card">
+   <h2>গেমস</h2>
+   <div class="games">
+    <div class="game">
+     <div class="emoji">🎰</div>
+     <h3>Lucky Slot</h3>
+     <button onclick="openSlot()">খেলুন</button>
+    </div>
+    <div class="game">
+     <div class="emoji">💎</div>
+     <h3>Jelly Match</h3>
+     <p class="small">শীঘ্রই আসছে</p>
+    </div>
+    <div class="game">
+     <div class="emoji">🎮</div>
+     <h3>Arcade</h3>
+     <p class="small">শীঘ্রই আসছে</p>
+    </div>
+    <div class="game">
+     <div class="emoji">🃏</div>
+     <h3>Card Game</h3>
+     <p class="small">শীঘ্রই আসছে</p>
+    </div>
+   </div>
   </div>
-  <div class="game">
-   <div class="emoji">💎</div>
-   <h3>Jelly Game</h3>
-   <p>Coming Soon</p>
-   <button class="gold" onclick="comingSoon()">Play</button>
-  </div>
-  <div class="game">
-   <div class="emoji">🃏</div>
-   <h3>Card Game</h3>
-   <p>Coming Soon</p>
-   <button class="gold" onclick="comingSoon()">Play</button>
-  </div>
-  <div class="game">
-   <div class="emoji">🏆</div>
-   <h3>More Games</h3>
-   <p>Coming Soon</p>
-   <button class="gold" onclick="comingSoon()">Explore</button>
-  </div>
- </section>
 
- <h3>📢 Notice</h3>
- <section class="balance">
-  <p>Welcome to DK BAJJI 1!</p>
-  <p class="notice">এটি একটি প্রাথমিক ডেমো। এখানে কোনো আসল টাকা জমা, উত্তোলন বা পুরস্কার দেওয়া হয় না।</p>
+  <div id="slotArea" class="card hidden">
+   <h2>🎰 Lucky Slot</h2>
+   <p>খেলতে ১০ কয়েন লাগবে। তিনটি একই চিহ্ন হলে ৫০ কয়েন পাবেন।</p>
+   <div class="slot" id="slotResult">🍒 🍋 🍇</div>
+   <button id="spinButton" onclick="spin()">স্পিন করুন — ১০ কয়েন</button>
+   <p id="message"></p>
+   <button onclick="closeSlot()">বন্ধ করুন</button>
+  </div>
+
+  <div class="card">
+   <h2>👤 অ্যাকাউন্ট</h2>
+   <p>নাম: <span id="profileName"></span></p>
+   <button onclick="logout()">লগআউট</button>
+  </div>
  </section>
 </main>
-<footer>© 2026 DK BAJJI 1</footer>
+
+<footer>
+ © 2026 BIKASH12 Gaming<br>
+কয়েন শুধুমাত্র গেমের ভার্চুয়াল পয়েন্ট। এর কোনো নগদ মূল্য নেই।
+</footer>
+
 <script>
-function comingSoon(){
- alert("এই গেমটি এখনো যুক্ত করা হয়নি।");
+let player = localStorage.getItem("bikash12_name");
+let coins = Number(localStorage.getItem("bikash12_coins"));
+
+if(!localStorage.getItem("bikash12_coins")){
+ coins=100;
+ localStorage.setItem("bikash12_coins",coins);
 }
-function walletInfo(type){
- alert(type+" ব্যবস্থা এখন ডেমো মোডে আছে। আসল লেনদেন চালু নেই।");
+
+function save(){
+ localStorage.setItem("bikash12_coins",coins);
+ document.getElementById("coins").textContent=coins;
 }
+
+function showDashboard(){
+ document.getElementById("login").classList.add("hidden");
+ document.getElementById("dashboard").classList.remove("hidden");
+ document.getElementById("userLabel").textContent=player;
+ document.getElementById("profileName").textContent=player;
+ save();
+}
+
+function login(){
+ let name=document.getElementById("playerName").value.trim();
+ if(!name){alert("আপনার নাম লিখুন");return;}
+ player=name;
+ localStorage.setItem("bikash12_name",player);
+ showDashboard();
+}
+
+function logout(){
+ localStorage.removeItem("bikash12_name");
+ location.reload();
+}
+
+function dailyBonus(){
+ let today=new Date().toDateString();
+ let last=localStorage.getItem("bikash12_bonus");
+ if(last===today){
+  document.getElementById("bonusMessage").textContent="আজকের বোনাস নেওয়া হয়েছে।";
+  return;
+ }
+ coins+=20;
+ localStorage.setItem("bikash12_bonus",today);
+ save();
+ document.getElementById("bonusMessage").textContent="অভিনন্দন! ২০ কয়েন পেয়েছেন।";
+}
+
+function openSlot(){
+ document.getElementById("slotArea").classList.remove("hidden");
+}
+
+function closeSlot(){
+ document.getElementById("slotArea").classList.add("hidden");
+}
+
+function spin(){
+ if(coins<10){
+  document.getElementById("message").textContent="পর্যাপ্ত কয়েন নেই।";
+  return;
+ }
+ coins-=10;
+ save();
+
+ let symbols=["🍒","🍋","🍇","🍉","⭐","🔔"];
+ let a=symbols[Math.floor(Math.random()*symbols.length)];
+ let b=symbols[Math.floor(Math.random()*symbols.length)];
+ let c=symbols[Math.floor(Math.random()*symbols.length)];
+
+ document.getElementById("slotResult").textContent=a+" "+b+" "+c;
+
+ if(a===b && b===c){
+  coins+=50;
+  document.getElementById("message").textContent="অভিনন্দন! ৫০ কয়েন জিতেছেন!";
+ }else{
+  document.getElementById("message").textContent="আবার চেষ্টা করুন!";
+ }
+ save();
+}
+
+if(player) showDashboard();
 </script>
 </body>
 </html>
