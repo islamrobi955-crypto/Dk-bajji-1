@@ -1,6 +1,6 @@
 /* =====================================================
    BIKASH12 BAJI
-   PROVIDER EDITION
+   COMPLETE PROVIDER EDITION
    VIRTUAL CREDITS ONLY — NO CASH VALUE
 ===================================================== */
 
@@ -44,21 +44,137 @@ let selectedProvider = "";
 let selectedGameName = "";
 
 
-/* 2. PROVIDER LIST */
+/* 2. PROVIDERS */
 
 const providers = [
-  { id: "pg", name: "PG", icon: "🎮", games: ["Fortune Tiger", "Fortune Ox", "Fortune Rabbit", "Fortune Mouse", "Fortune Dragon"] },
-  { id: "jili", name: "JILI", icon: "🎰", games: ["Super Ace", "Golden Empire", "Crazy Hunter", "Boxing King", "Money Coming"] },
-  { id: "pragmatic", name: "Pragmatic Play", icon: "⭐", games: ["Sweet Bonanza", "Gates of Olympus", "Big Bass Bonanza", "The Dog House"] },
-  { id: "cq9", name: "CQ9", icon: "🎲", games: ["Rave Jump", "Thor 2", "Good Fortune", "Dragon Heart"] },
-  { id: "habanero", name: "Habanero", icon: "🔥", games: ["Hot Hot Fruit", "Koi Gate", "Fa Cai Shen", "Wild Trucks"] },
-  { id: "evolution", name: "Evolution", icon: "🎡", games: ["Lightning Roulette", "Dream Catcher", "Crazy Time", "Monopoly Live"] },
-  { id: "microgaming", name: "Microgaming", icon: "💎", games: ["Immortal Romance", "Thunderstruck", "Break da Bank"] },
-  { id: "playtech", name: "Playtech", icon: "🏆", games: ["Age of the Gods", "Buffalo Blitz", "Fire Blaze"] },
-  { id: "netent", name: "NetEnt", icon: "🌟", games: ["Starburst", "Gonzo's Quest", "Dead or Alive"] },
-  { id: "playngo", name: "Play'n GO", icon: "🚀", games: ["Book of Dead", "Reactoonz", "Rise of Olympus"] },
-  { id: "spade", name: "Spadegaming", icon: "♠️", games: ["Fishing War", "Brothers Kingdom", "Golden Lotus"] },
-  { id: "ka", name: "KA Gaming", icon: "🃏", games: ["Lucky Twins", "Dragon Treasure", "Golden Dragon"] }
+  {
+    id: "pg",
+    name: "PG",
+    icon: "🎮",
+    games: [
+      "Fortune Tiger",
+      "Fortune Ox",
+      "Fortune Rabbit",
+      "Fortune Mouse",
+      "Fortune Dragon"
+    ]
+  },
+  {
+    id: "jili",
+    name: "JILI",
+    icon: "🎰",
+    games: [
+      "Super Ace",
+      "Golden Empire",
+      "Crazy Hunter",
+      "Boxing King",
+      "Money Coming"
+    ]
+  },
+  {
+    id: "pragmatic",
+    name: "Pragmatic Play",
+    icon: "⭐",
+    games: [
+      "Sweet Bonanza",
+      "Gates of Olympus",
+      "Big Bass Bonanza",
+      "The Dog House"
+    ]
+  },
+  {
+    id: "cq9",
+    name: "CQ9",
+    icon: "🎲",
+    games: [
+      "Rave Jump",
+      "Thor 2",
+      "Good Fortune",
+      "Dragon Heart"
+    ]
+  },
+  {
+    id: "habanero",
+    name: "Habanero",
+    icon: "🔥",
+    games: [
+      "Hot Hot Fruit",
+      "Koi Gate",
+      "Fa Cai Shen",
+      "Wild Trucks"
+    ]
+  },
+  {
+    id: "evolution",
+    name: "Evolution",
+    icon: "🎡",
+    games: [
+      "Lightning Roulette",
+      "Dream Catcher",
+      "Crazy Time",
+      "Monopoly Live"
+    ]
+  },
+  {
+    id: "microgaming",
+    name: "Microgaming",
+    icon: "💎",
+    games: [
+      "Immortal Romance",
+      "Thunderstruck",
+      "Break da Bank"
+    ]
+  },
+  {
+    id: "playtech",
+    name: "Playtech",
+    icon: "🏆",
+    games: [
+      "Age of the Gods",
+      "Buffalo Blitz",
+      "Fire Blaze"
+    ]
+  },
+  {
+    id: "netent",
+    name: "NetEnt",
+    icon: "🌟",
+    games: [
+      "Starburst",
+      "Gonzo's Quest",
+      "Dead or Alive"
+    ]
+  },
+  {
+    id: "playngo",
+    name: "Play'n GO",
+    icon: "🚀",
+    games: [
+      "Book of Dead",
+      "Reactoonz",
+      "Rise of Olympus"
+    ]
+  },
+  {
+    id: "spade",
+    name: "Spadegaming",
+    icon: "♠️",
+    games: [
+      "Fishing War",
+      "Brothers Kingdom",
+      "Golden Lotus"
+    ]
+  },
+  {
+    id: "ka",
+    name: "KA Gaming",
+    icon: "🃏",
+    games: [
+      "Lucky Twins",
+      "Dragon Treasure",
+      "Golden Dragon"
+    ]
+  }
 ];
 
 
@@ -69,13 +185,13 @@ function getElement(id) {
 }
 
 function getValue(id) {
-  const el = getElement(id);
-  return el ? el.value.trim() : "";
+  const element = getElement(id);
+  return element ? element.value.trim() : "";
 }
 
 function setText(id, value) {
-  const el = getElement(id);
-  if (el) el.textContent = value;
+  const element = getElement(id);
+  if (element) element.textContent = value;
 }
 
 function money(value) {
@@ -106,21 +222,31 @@ function saveAll() {
 
 /* 4. PAGE NAVIGATION */
 
-function showPage(pageName) {
+function hideAllPages() {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
+    page.classList.add("hidden");
     page.style.display = "none";
   });
+}
+
+function showPage(pageName) {
+  hideAllPages();
 
   const target = getElement(pageName);
 
   if (target) {
+    target.classList.remove("hidden");
     target.classList.add("active");
     target.style.display = "block";
   }
 
   const menu = document.querySelector(".side-menu");
-  if (menu) menu.classList.remove("show");
+
+  if (menu) {
+    menu.classList.remove("show");
+    menu.classList.add("hidden");
+  }
 
   updateBalance();
   updateProfile();
@@ -138,16 +264,29 @@ function showPage(pageName) {
     updateNumbersDisplay();
   }
 
-  if (pageName === "history" || pageName === "transactions") {
+  if (
+    pageName === "history" ||
+    pageName === "transactions"
+  ) {
     renderHistory();
   }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (pageName === "vip") {
+    updateVipProgress();
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
 function toggleMenu() {
   const menu = document.querySelector(".side-menu");
-  if (menu) menu.classList.toggle("show");
+  if (!menu) return;
+
+  menu.classList.remove("hidden");
+  menu.classList.toggle("show");
 }
 
 
@@ -169,11 +308,10 @@ function renderProviderCatalog() {
 
   const heading = document.createElement("h2");
   heading.textContent = "ALL GAME PROVIDERS";
-  catalog.appendChild(heading);
 
   const subtitle = document.createElement("p");
-  subtitle.textContent = "আপনার পছন্দের Provider নির্বাচন করুন";
-  catalog.appendChild(subtitle);
+  subtitle.textContent =
+    "আপনার পছন্দের Provider নির্বাচন করুন";
 
   const grid = document.createElement("div");
   grid.className = "provider-grid";
@@ -194,6 +332,7 @@ function renderProviderCatalog() {
     count.textContent = provider.games.length + " Games";
 
     card.append(icon, name, count);
+
     card.addEventListener("click", () => {
       openProvider(provider.id);
     });
@@ -201,22 +340,24 @@ function renderProviderCatalog() {
     grid.appendChild(card);
   });
 
-  catalog.appendChild(grid);
+  const gameArea = document.createElement("div");
+  gameArea.id = "providerGameArea";
 
-  let gameArea = getElement("providerGameArea");
-
-  if (!gameArea) {
-    gameArea = document.createElement("div");
-    gameArea.id = "providerGameArea";
-    catalog.appendChild(gameArea);
-  }
+  catalog.append(
+    heading,
+    subtitle,
+    grid,
+    gameArea
+  );
 }
 
 
 /* 6. OPEN PROVIDER LOBBY */
 
 function openProvider(providerId) {
-  const provider = providers.find(item => item.id === providerId);
+  const provider = providers.find(
+    item => item.id === providerId
+  );
 
   if (!provider) {
     showMessage("Provider পাওয়া যায়নি।");
@@ -228,30 +369,29 @@ function openProvider(providerId) {
   const page = getElement("pg");
   if (!page) return;
 
+  hideAllPages();
+
+  page.classList.remove("hidden");
   page.classList.add("active");
   page.style.display = "block";
 
-  const jiliPage = getElement("jili");
-  if (jiliPage) {
-    jiliPage.classList.remove("active");
-    jiliPage.style.display = "none";
-  }
-
-  let area = getElement("providerGameArea");
-
-  if (!area) {
+  if (!getElement("providerCatalog")) {
     renderProviderCatalog();
-    area = getElement("providerGameArea");
   }
 
+  const area = getElement("providerGameArea");
   if (!area) return;
 
   area.replaceChildren();
 
   const back = document.createElement("button");
   back.type = "button";
+  back.className = "provider-back";
   back.textContent = "← All Providers";
-  back.addEventListener("click", renderProviderCatalog);
+
+  back.addEventListener("click", () => {
+    renderProviderCatalog();
+  });
 
   const title = document.createElement("h2");
   title.textContent = provider.icon + " " + provider.name;
@@ -262,7 +402,7 @@ function openProvider(providerId) {
   const grid = document.createElement("div");
   grid.className = "game-grid";
 
-  provider.games.forEach((game, index) => {
+  provider.games.forEach(game => {
     const card = document.createElement("div");
     card.className = "game-card";
 
@@ -276,6 +416,7 @@ function openProvider(providerId) {
     const play = document.createElement("button");
     play.type = "button";
     play.textContent = "PLAY";
+
     play.addEventListener("click", () => {
       openGame(game);
     });
@@ -284,7 +425,17 @@ function openProvider(providerId) {
     grid.appendChild(card);
   });
 
-  area.append(back, title, subtitle, grid);
+  area.append(
+    back,
+    title,
+    subtitle,
+    grid
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
 
@@ -292,10 +443,12 @@ function openProvider(providerId) {
 
 function filterGames(category, button) {
   document.querySelectorAll(".game-card").forEach(card => {
-    const cardCategory = card.dataset.category || "all";
+    const cardCategory =
+      card.dataset.category || "all";
 
     card.style.display =
-      category === "all" || cardCategory === category
+      category === "all" ||
+      cardCategory === category
         ? ""
         : "none";
   });
@@ -304,7 +457,9 @@ function filterGames(category, button) {
     btn.classList.remove("selected", "active");
   });
 
-  if (button) button.classList.add("selected", "active");
+  if (button) {
+    button.classList.add("selected", "active");
+  }
 }
 
 
@@ -313,31 +468,30 @@ function filterGames(category, button) {
 function openGame(gameName) {
   selectedGameName = gameName || "Virtual Game";
 
+  showPage("gameView");
+
   setText("gameTitle", selectedGameName);
   setText("selectedGame", selectedGameName);
 
-  showPage("gameView");
-
   const gameView = getElement("gameView");
+  if (!gameView) return;
 
-  if (gameView) {
-    let message = getElement("virtualGameMessage");
+  let message = getElement("virtualGameMessage");
 
-    if (!message) {
-      message = document.createElement("div");
-      message.id = "virtualGameMessage";
-      message.className = "virtual-game-message";
-      gameView.appendChild(message);
-    }
-
-    message.textContent =
-      selectedGameName +
-      " — এখানে ভার্চুয়াল গেমের স্ক্রিন দেখানো হবে।";
+  if (!message) {
+    message = document.createElement("div");
+    message.id = "virtualGameMessage";
+    message.className = "virtual-game-message";
+    gameView.appendChild(message);
   }
+
+  message.textContent =
+    selectedGameName +
+    " — ভার্চুয়াল গেমের স্ক্রিন";
 }
 
 
-/* 9. LOGIN */
+/* 9. PLAYER LOGIN */
 
 function playerLogin() {
   const name =
@@ -353,7 +507,7 @@ function playerLogin() {
   }
 
   currentUser = {
-    name,
+    name: name,
     playerId: playerId || "P-" + Date.now(),
     loginTime: new Date().toISOString()
   };
@@ -366,7 +520,9 @@ function playerLogin() {
 }
 
 function playerLogout() {
-  if (!confirm("আপনি কি লগআউট করতে চান?")) return;
+  if (!confirm("আপনি কি লগআউট করতে চান?")) {
+    return;
+  }
 
   currentUser = null;
   saveAll();
@@ -377,12 +533,19 @@ function playerLogout() {
 }
 
 function updateProfile() {
-  setText("profileName", currentUser ? currentUser.name : "Guest Player");
-  setText("playerId", currentUser ? currentUser.playerId : "Not Logged In");
+  setText(
+    "profileName",
+    currentUser ? currentUser.name : "Guest Player"
+  );
+
+  setText(
+    "playerId",
+    currentUser ? currentUser.playerId : "Not Logged In"
+  );
 }
 
 
-/* 10. BALANCE */
+/* 10. VIRTUAL BALANCE */
 
 function updateBalance() {
   setText("topBalance", money(virtualBalance));
@@ -394,15 +557,21 @@ function updateBalance() {
 /* 11. PAYMENT METHOD */
 
 function selectPayment(method, button) {
-  selectedPaymentMethod = String(method || "").toLowerCase();
+  selectedPaymentMethod =
+    String(method || "").toLowerCase();
 
-  document.querySelectorAll(".payment-methods button").forEach(btn => {
+  document.querySelectorAll(
+    ".payment-methods button"
+  ).forEach(btn => {
     btn.classList.remove("selected", "active");
   });
 
-  if (button) button.classList.add("selected");
+  if (button) {
+    button.classList.add("selected");
+  }
 
-  const number = paymentNumbers[selectedPaymentMethod] || "";
+  const number =
+    paymentNumbers[selectedPaymentMethod] || "";
 
   setText(
     "paymentNumber",
@@ -410,7 +579,10 @@ function selectPayment(method, button) {
   );
 
   const input = getElement("paymentType");
-  if (input) input.value = selectedPaymentMethod;
+
+  if (input) {
+    input.value = selectedPaymentMethod;
+  }
 }
 
 
@@ -437,11 +609,17 @@ function sendRequest(type) {
 
   if (type === "deposit") {
     amount = Number(getValue("depositAmount"));
-    method = selectedPaymentMethod || getValue("paymentType");
+
+    method =
+      selectedPaymentMethod ||
+      getValue("paymentType");
+
     reference = getValue("depositRef");
 
     if (!method || !reference) {
-      showMessage("পদ্ধতি নির্বাচন ও Reference লিখুন।");
+      showMessage(
+        "পদ্ধতি নির্বাচন ও Reference লিখুন।"
+      );
       return;
     }
   }
@@ -462,12 +640,19 @@ function sendRequest(type) {
     method = "virtual";
   }
 
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
+  if (
+    !Number.isFinite(amount) ||
+    amount <= 0 ||
+    amount > 1000000
+  ) {
     showMessage("সঠিক পরিমাণ লিখুন।");
     return;
   }
 
-  if (type !== "deposit" && amount > virtualBalance) {
+  if (
+    type !== "deposit" &&
+    amount > virtualBalance
+  ) {
     showMessage("ভার্চুয়াল ক্রেডিট যথেষ্ট নেই।");
     return;
   }
@@ -476,11 +661,11 @@ function sendRequest(type) {
     id: makeId(),
     user: currentUser.name,
     playerId: currentUser.playerId,
-    type,
-    amount,
-    method,
-    reference,
-    receiver,
+    type: type,
+    amount: amount,
+    method: method,
+    reference: reference,
+    receiver: receiver,
     status: "pending",
     createdAt: new Date().toISOString()
   };
@@ -489,8 +674,8 @@ function sendRequest(type) {
 
   history.unshift({
     id: request.id,
-    type,
-    amount,
+    type: type,
+    amount: amount,
     status: "pending",
     date: request.createdAt
   });
@@ -499,7 +684,10 @@ function sendRequest(type) {
   clearRequestInputs();
   updateAdminCount();
 
-  showMessage("আপনার ভার্চুয়াল অনুরোধ জমা হয়েছে।");
+  showMessage(
+    "আপনার ভার্চুয়াল অনুরোধ জমা হয়েছে।"
+  );
+
   showPage("history");
 }
 
@@ -511,8 +699,8 @@ function clearRequestInputs() {
     "receiver",
     "withdrawAmount"
   ].forEach(id => {
-    const el = getElement(id);
-    if (el) el.value = "";
+    const element = getElement(id);
+    if (element) element.value = "";
   });
 }
 
@@ -548,31 +736,36 @@ function renderAdminRequests() {
       " | Status: " + request.status;
 
     const date = document.createElement("small");
-    date.textContent = new Date(request.createdAt).toLocaleString();
+    date.textContent =
+      new Date(request.createdAt).toLocaleString();
 
     card.append(title, details, date);
 
     if (request.reference) {
       const ref = document.createElement("p");
-      ref.textContent = "Reference: " + request.reference;
+      ref.textContent =
+        "Reference: " + request.reference;
       card.appendChild(ref);
     }
 
     if (request.receiver) {
       const receiver = document.createElement("p");
-      receiver.textContent = "Receiver: " + request.receiver;
+      receiver.textContent =
+        "Receiver: " + request.receiver;
       card.appendChild(receiver);
     }
 
     if (request.status === "pending") {
       const approve = document.createElement("button");
       approve.textContent = "Approve";
+
       approve.addEventListener("click", () => {
         updateRequest(request.id, "approved");
       });
 
       const reject = document.createElement("button");
       reject.textContent = "Reject";
+
       reject.addEventListener("click", () => {
         updateRequest(request.id, "rejected");
       });
@@ -590,9 +783,13 @@ function renderAdminRequests() {
 /* 14. APPROVE / REJECT */
 
 function updateRequest(requestId, status) {
-  if (!["approved", "rejected"].includes(status)) return;
+  if (!["approved", "rejected"].includes(status)) {
+    return;
+  }
 
-  const request = requests.find(item => item.id === requestId);
+  const request = requests.find(
+    item => item.id === requestId
+  );
 
   if (!request || request.status !== "pending") {
     showMessage("অনুরোধটি পরিবর্তন করা যাচ্ছে না।");
@@ -615,15 +812,24 @@ function updateRequest(requestId, status) {
   request.status = status;
   request.updatedAt = new Date().toISOString();
 
-  const item = history.find(entry => entry.id === requestId);
-  if (item) item.status = status;
+  const item = history.find(
+    entry => entry.id === requestId
+  );
+
+  if (item) {
+    item.status = status;
+  }
 
   saveAll();
   updateBalance();
   renderAdminRequests();
   renderHistory();
 
-  showMessage(status === "approved" ? "Approve হয়েছে।" : "Reject হয়েছে।");
+  showMessage(
+    status === "approved"
+      ? "Approve হয়েছে।"
+      : "Reject হয়েছে।"
+  );
 }
 
 
@@ -632,12 +838,16 @@ function updateRequest(requestId, status) {
 function updateAdminCount() {
   setText(
     "pendingCount",
-    requests.filter(item => item.status === "pending").length
+    requests.filter(
+      item => item.status === "pending"
+    ).length
   );
 
   setText(
     "approvedCount",
-    requests.filter(item => item.status === "approved").length
+    requests.filter(
+      item => item.status === "approved"
+    ).length
   );
 }
 
@@ -660,8 +870,13 @@ function updateNumbersDisplay() {
   const bkash = getElement("newBkash");
   const nagad = getElement("newNagad");
 
-  if (bkash && !bkash.value) bkash.value = paymentNumbers.bkash || "";
-  if (nagad && !nagad.value) nagad.value = paymentNumbers.nagad || "";
+  if (bkash && !bkash.value) {
+    bkash.value = paymentNumbers.bkash || "";
+  }
+
+  if (nagad && !nagad.value) {
+    nagad.value = paymentNumbers.nagad || "";
+  }
 }
 
 
@@ -698,7 +913,8 @@ function renderHistory() {
     status.textContent = "Status: " + item.status;
 
     const date = document.createElement("small");
-    date.textContent = new Date(item.date).toLocaleString();
+    date.textContent =
+      new Date(item.date).toLocaleString();
 
     row.append(title, amount, status, date);
     container.appendChild(row);
@@ -706,13 +922,16 @@ function renderHistory() {
 }
 
 
-/* 18. VIP */
+/* 18. VIP PROGRESS */
 
 function updateVipProgress() {
   const progress = getElement("vipProgress");
   if (!progress) return;
 
-  const percent = Math.min(100, virtualBalance / 100);
+  const percent = Math.min(
+    100,
+    virtualBalance / 100
+  );
 
   if (progress.tagName === "PROGRESS") {
     progress.value = percent;
@@ -722,7 +941,7 @@ function updateVipProgress() {
 }
 
 
-/* 19. SUPPORT */
+/* 19. CUSTOMER SUPPORT */
 
 function sendSupport() {
   if (!currentUser) {
@@ -741,8 +960,8 @@ function sendSupport() {
   supportTickets.unshift({
     id: makeId(),
     user: currentUser.name,
-    subject,
-    message,
+    subject: subject,
+    message: message,
     status: "pending",
     date: new Date().toISOString()
   });
@@ -770,14 +989,12 @@ function initializeApp() {
   updateVipProgress();
   renderProviderCatalog();
 
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-    page.style.display = "none";
-  });
+  hideAllPages();
 
   const home = getElement("home");
 
   if (home) {
+    home.classList.remove("hidden");
     home.classList.add("active");
     home.style.display = "block";
   }
@@ -785,4 +1002,7 @@ function initializeApp() {
   console.log("BIKASH12 BAJI initialized.");
 }
 
-document.addEventListener("DOMContentLoaded", initializeApp);
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeApp
+);
