@@ -1,0 +1,264 @@
+/* =====================================
+   BIKASH12 BAJI - ROYAL GOLD DESIGN
+===================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --gold: #d6a629;
+  --gold-light: #ffe9a0;
+  --gold-dark: #946300;
+  --cream: #fff8e8;
+  --brown: #50350c;
+  --white: #ffffff;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(145deg, #fff9e9, #e8c875, #c99a36);
+  color: var(--brown);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.top-header {
+  background: linear-gradient(135deg, #fff1b8, #d6a629, #986300);
+  color: #50350c;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 3px solid #8b610d;
+  box-shadow: 0 4px 15px #79520b55;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.brand small {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.crown {
+  font-size: 35px;
+}
+
+.main-nav {
+  background: linear-gradient(90deg, #9b690b, #e7bd50, #9b690b);
+  display: flex;
+  overflow-x: auto;
+  padding: 9px 5px;
+  gap: 7px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 3px 10px #68450055;
+}
+
+button {
+  border: 1px solid #9b690b;
+  border-radius: 10px;
+  padding: 11px 15px;
+  background: linear-gradient(135deg, #fff0b3, #d6a629);
+  color: #50350c;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 7px #79520b30;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+.main-nav button {
+  white-space: nowrap;
+  background: linear-gradient(135deg, #fff6d5, #e4bc55);
+}
+
+main {
+  max-width: 750px;
+  margin: auto;
+  padding: 14px;
+}
+
+.card {
+  background: linear-gradient(145deg, #fffdf6, #f9e7b6);
+  border: 2px solid #c2942c;
+  border-radius: 18px;
+  padding: 18px;
+  margin: 15px 0;
+  box-shadow: 0 6px 18px #74500d30;
+}
+
+h2 {
+  color: #96640a;
+  margin-top: 0;
+}
+
+h3 {
+  color: #8b5d0b;
+}
+
+.hero {
+  text-align: center;
+  padding: 30px 15px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fff4c9, #e4bd5b, #b17a13);
+  border: 3px solid #a36f0d;
+  box-shadow: 0 8px 25px #79520b55;
+}
+
+.hero h2 {
+  color: #694200;
+  font-size: 25px;
+}
+
+.hero p {
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.hero-crown {
+  font-size: 65px;
+  filter: drop-shadow(0 4px 5px #79520b66);
+}
+
+.balance {
+  color: #986500;
+  font-size: 32px;
+  font-weight: 900;
+  margin: 12px 0;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.action-grid button {
+  min-width: 0;
+  padding: 12px 5px;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.game-tile {
+  background: linear-gradient(145deg, #fff7dc, #e8c36a);
+  border: 2px solid #c2942c;
+  border-radius: 14px;
+  min-height: 105px;
+  padding: 17px 8px;
+  text-align: center;
+  color: #684509;
+  font-weight: bold;
+  font-size: 17px;
+  box-shadow: 0 4px 10px #74500d22;
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px solid #b88b29;
+  border-radius: 10px;
+  background: #fffdf7;
+  color: #50350c;
+  font-size: 16px;
+  outline: none;
+}
+
+input:focus {
+  border: 2px solid #b17a13;
+  box-shadow: 0 0 8px #d6a62966;
+}
+
+.payment-number {
+  background: linear-gradient(135deg, #fff0bc, #e6c16a);
+  border: 1px solid #b88b29;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  margin: 15px 0;
+}
+
+.payment-number strong {
+  display: block;
+  font-size: 21px;
+  color: #805400;
+  padding: 8px;
+}
+
+#history,
+#adminRequests {
+  background: #fff9e9;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+footer {
+  background: linear-gradient(135deg, #9b690b, #e6bd54, #9b690b);
+  text-align: center;
+  padding: 25px 12px;
+  color: #50350c;
+  margin-top: 30px;
+  border-top: 3px solid #8b610d;
+}
+
+footer h3 {
+  color: #50350c;
+}
+
+.small,
+small {
+  color: #80632e;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 400px) {
+  .brand h1 {
+    font-size: 19px;
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h2 {
+    font-size: 20px;
+  }
+
+  main {
+    padding: 9px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+                              }
