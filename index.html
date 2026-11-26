@@ -1,218 +1,227 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080808">
-<title>BIKASH12 Gaming</title>
-<style>
-*{box-sizing:border-box}
-body{
- margin:0;background:#080808;color:#fff;
- font-family:Arial,sans-serif;
-}
-header{
- background:#111;padding:18px;
- border-bottom:2px solid #d6a629;
- display:flex;justify-content:space-between;
- align-items:center;flex-wrap:wrap;gap:10px;
-}
-.logo{font-size:25px;font-weight:bold;color:#f4c542}
-.logo span{color:white}
-main{max-width:650px;margin:auto;padding:16px}
-.card{
- background:#151515;border:1px solid #a77d20;
- border-radius:14px;padding:18px;margin:15px 0;
-}
-h2{color:#f4c542;margin-top:0}
-input{
- width:100%;padding:13px;margin:8px 0;
- border-radius:8px;border:1px solid #777;
- background:#222;color:white;font-size:16px;
-}
-button{
- background:linear-gradient(135deg,#f7d66a,#b47b0b);
- color:#111;border:0;border-radius:9px;
- padding:12px 18px;font-weight:bold;
- font-size:15px;cursor:pointer;margin:5px;
-}
-button:disabled{opacity:.5}
-.balance{
- font-size:28px;color:#f4c542;font-weight:bold;
-}
-.games{
- display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
-}
-.game{
- background:#222;border:1px solid #9d741d;
- border-radius:12px;padding:18px;text-align:center;
-}
-.game .emoji{font-size:35px}
-.slot{
- font-size:48px;text-align:center;
- letter-spacing:8px;background:#080808;
- border:1px solid #c99b2d;border-radius:12px;
- padding:20px;margin:15px 0;
-}
-.small{font-size:12px;color:#aaa}
-.hidden{display:none}
-#message{color:#f4c542;min-height:24px}
-footer{text-align:center;color:#888;padding:25px;font-size:12px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#b8860b">
+  <title>বিকাশ১২ বাজি | BIKASH12 BAJI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
- <div class="logo">BIKASH<span>12</span></div>
- <div id="userLabel">Gaming Club</div>
+<header class="top-header">
+  <div class="brand">
+    <span class="crown">👑</span>
+    <div>
+      <h1>BIKASH12 BAJI</h1>
+      <small>ROYAL GOLD GAMING CLUB</small>
+    </div>
+  </div>
+  <button id="loginBtn" onclick="showPage('login')">Login</button>
 </header>
 
+<nav class="main-nav">
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('pg')">PG Games</button>
+  <button onclick="showPage('jili')">JILI</button>
+  <button onclick="showPage('profile')">Profile</button>
+  <button onclick="showPage('wallet')">Wallet</button>
+</nav>
+
 <main>
- <section id="login" class="card">
-  <h2>স্বাগতম BIKASH12-এ</h2>
-  <p>আপনার নাম লিখে প্রবেশ করুন</p>
-  <input id="playerName" placeholder="আপনার নাম">
-  <button onclick="login()">প্রবেশ করুন</button>
- </section>
 
- <section id="dashboard" class="hidden">
-  <div class="card">
-   <h2>আপনার ওয়ালেট</h2>
-   <div class="balance"><span id="coins">0</span> কয়েন</div>
-   <p class="small">আপনার ভার্চুয়াল গেমিং কয়েন</p>
-   <button onclick="dailyBonus()">দৈনিক বোনাস নিন</button>
-   <p id="bonusMessage"></p>
-  </div>
+  <!-- HOME -->
+  <section id="home" class="page">
+    <div class="hero">
+      <div class="hero-crown">👑</div>
+      <h2>WELCOME TO BIKASH12 BAJI</h2>
+      <p>ROYAL GOLD GAMING EXPERIENCE</p>
+      <button onclick="showPage('jili')">Explore Games</button>
+    </div>
 
-  <div class="card">
-   <h2>গেমস</h2>
-   <div class="games">
-    <div class="game">
-     <div class="emoji">🎰</div>
-     <h3>Lucky Slot</h3>
-     <button onclick="openSlot()">খেলুন</button>
+    <div class="wallet-preview card">
+      <h2>My Wallet</h2>
+      <div class="balance">৳ <span id="balance">1000</span></div>
+      <small>Virtual Credits Only — No Cash Value</small>
+      <div class="action-grid">
+        <button onclick="showPage('deposit')">Deposit</button>
+        <button onclick="showPage('send')">Send Money</button>
+        <button onclick="showPage('withdraw')">Withdrawal</button>
+      </div>
     </div>
-    <div class="game">
-     <div class="emoji">💎</div>
-     <h3>Jelly Match</h3>
-     <p class="small">শীঘ্রই আসছে</p>
-    </div>
-    <div class="game">
-     <div class="emoji">🎮</div>
-     <h3>Arcade</h3>
-     <p class="small">শীঘ্রই আসছে</p>
-    </div>
-    <div class="game">
-     <div class="emoji">🃏</div>
-     <h3>Card Game</h3>
-     <p class="small">শীঘ্রই আসছে</p>
-    </div>
-   </div>
-  </div>
 
-  <div id="slotArea" class="card hidden">
-   <h2>🎰 Lucky Slot</h2>
-   <p>খেলতে ১০ কয়েন লাগবে। তিনটি একই চিহ্ন হলে ৫০ কয়েন পাবেন।</p>
-   <div class="slot" id="slotResult">🍒 🍋 🍇</div>
-   <button id="spinButton" onclick="spin()">স্পিন করুন — ১০ কয়েন</button>
-   <p id="message"></p>
-   <button onclick="closeSlot()">বন্ধ করুন</button>
-  </div>
+    <div class="card">
+      <h2>Game Categories</h2>
+      <div class="game-grid">
+        <button class="game-tile" onclick="showPage('jili')">
+          🎰<br>JILI Games
+        </button>
+        <button class="game-tile" onclick="showPage('pg')">
+          🎮<br>PG Games
+        </button>
+        <button class="game-tile" onclick="showPage('bonus')">
+          🎁<br>Bonus
+        </button>
+        <button class="game-tile" onclick="showPage('vip')">
+          👑<br>VIP Club
+        </button>
+      </div>
+    </div>
+  </section>
 
-  <div class="card">
-   <h2>👤 অ্যাকাউন্ট</h2>
-   <p>নাম: <span id="profileName"></span></p>
-   <button onclick="logout()">লগআউট</button>
-  </div>
- </section>
+  <!-- LOGIN -->
+  <section id="login" class="page hidden">
+    <div class="card">
+      <h2>Player Login</h2>
+      <input id="playerName" placeholder="আপনার নাম">
+      <button onclick="playerLogin()">প্রবেশ করুন</button>
+      <p id="loginMessage"></p>
+      <small>এটি প্রাথমিক Demo Login। পরবর্তী ধাপে নিরাপদ অ্যাকাউন্ট ব্যবস্থা যুক্ত হবে।</small>
+    </div>
+  </section>
+
+  <!-- JILI -->
+  <section id="jili" class="page hidden">
+    <div class="card">
+      <h2>👑 JILI Games</h2>
+      <div class="game-grid">
+        <div class="game-tile">🎰<br>Slot Demo</div>
+        <div class="game-tile">💎<br>Arcade Demo</div>
+        <div class="game-tile">🐟<br>Fishing Demo</div>
+        <div class="game-tile">🧩<br>Puzzle Demo</div>
+      </div>
+      <p>এগুলো প্রাথমিক Demo বিভাগ।</p>
+    </div>
+  </section>
+
+  <!-- PG -->
+  <section id="pg" class="page hidden">
+    <div class="card">
+      <h2>🎮 PG Games</h2>
+      <div class="game-grid">
+        <div class="game-tile">🎯<br>Arcade</div>
+        <div class="game-tile">🧩<br>Puzzle</div>
+        <div class="game-tile">🎲<br>Dice Demo</div>
+        <div class="game-tile">⭐<br>Mini Games</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALLET -->
+  <section id="wallet" class="page hidden">
+    <div class="card">
+      <h2>👑 My Wallet</h2>
+      <div class="balance">৳ <span id="walletBalance">1000</span></div>
+      <p>শুধুমাত্র ভার্চুয়াল ক্রেডিট</p>
+      <div class="action-grid">
+        <button onclick="showPage('deposit')">Deposit</button>
+        <button onclick="showPage('send')">Send Money</button>
+        <button onclick="showPage('withdraw')">Withdrawal</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Transaction History</h2>
+      <div id="history">এখনো কোনো রিকুয়েস্ট নেই।</div>
+    </div>
+  </section>
+
+  <!-- DEPOSIT -->
+  <section id="deposit" class="page hidden">
+    <div class="card">
+      <h2>Deposit Request</h2>
+      <p>ভার্চুয়াল ক্রেডিটের Demo Request</p>
+      <div class="payment-number">
+        <h3>bKash Demo Number</h3>
+        <strong id="bkashNumber">DEMO NUMBER</strong>
+        <h3>Nagad Demo Number</h3>
+        <strong id="nagadNumber">DEMO NUMBER</strong>
+      </div>
+      <input id="depositAmount" type="number" placeholder="ক্রেডিটের পরিমাণ">
+      <input id="depositRef" placeholder="Demo Reference ID">
+      <button onclick="sendRequest('Deposit')">Request পাঠান</button>
+    </div>
+  </section>
+
+  <!-- SEND MONEY -->
+  <section id="send" class="page hidden">
+    <div class="card">
+      <h2>Send Money Request</h2>
+      <input id="receiver" placeholder="Player ID">
+      <input id="sendAmount" type="number" placeholder="ভার্চুয়াল ক্রেডিট">
+      <button onclick="sendRequest('Send Money')">Request পাঠান</button>
+    </div>
+  </section>
+
+  <!-- WITHDRAW -->
+  <section id="withdraw" class="page hidden">
+    <div class="card">
+      <h2>Withdrawal Request</h2>
+      <p>শুধুমাত্র ভার্চুয়াল ব্যালেন্স ব্যবস্থাপনা।</p>
+      <input id="withdrawAmount" type="number" placeholder="ক্রেডিটের পরিমাণ">
+      <button onclick="sendRequest('Withdrawal')">Request পাঠান</button>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile" class="page hidden">
+    <div class="card">
+      <h2>👤 Player Profile</h2>
+      <p>Player: <strong id="profileName">Guest</strong></p>
+      <button onclick="showPage('login')">Login</button>
+      <button onclick="playerLogout()">Logout</button>
+    </div>
+  </section>
+
+  <!-- BONUS -->
+  <section id="bonus" class="page hidden">
+    <div class="card">
+      <h2>🎁 Bonus Center</h2>
+      <p>ভার্চুয়াল Demo Bonus</p>
+      <button onclick="showPage('home')">Home</button>
+    </div>
+  </section>
+
+  <!-- VIP -->
+  <section id="vip" class="page hidden">
+    <div class="card">
+      <h2>👑 VIP Club</h2>
+      <p>VIP Profile ও Badge</p>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="page hidden">
+    <div class="card">
+      <h2>Admin Panel</h2>
+      <h3>Demo নম্বর পরিবর্তন</h3>
+      <input id="newBkash" placeholder="bKash Demo Number">
+      <input id="newNagad" placeholder="Nagad Demo Number">
+      <button onclick="updateNumbers()">Save Numbers</button>
+      <p id="adminMessage"></p>
+      <h3>Player Requests</h3>
+      <div id="adminRequests">কোনো Request নেই।</div>
+    </div>
+  </section>
+
+  <!-- SUPPORT -->
+  <section id="support" class="page hidden">
+    <div class="card">
+      <h2>Customer Support</h2>
+      <p>Support Center</p>
+      <input placeholder="আপনার প্রশ্ন লিখুন">
+      <button>Send Message</button>
+    </div>
+  </section>
+
 </main>
 
 <footer>
- © 2026 BIKASH12 Gaming<br>
-কয়েন শুধুমাত্র গেমের ভার্চুয়াল পয়েন্ট। এর কোনো নগদ মূল্য নেই।
+  <h3>👑 BIKASH12 BAJI</h3>
+  <p>Virtual Credits Only</p>
+  <p>কোনো বাস্তব অর্থের জুয়া বা নগদ লেনদেন নেই।</p>
+  <button onclick="showPage('admin')">Admin Demo</button>
 </footer>
 
-<script>
-let player = localStorage.getItem("bikash12_name");
-let coins = Number(localStorage.getItem("bikash12_coins"));
-
-if(!localStorage.getItem("bikash12_coins")){
- coins=100;
- localStorage.setItem("bikash12_coins",coins);
-}
-
-function save(){
- localStorage.setItem("bikash12_coins",coins);
- document.getElementById("coins").textContent=coins;
-}
-
-function showDashboard(){
- document.getElementById("login").classList.add("hidden");
- document.getElementById("dashboard").classList.remove("hidden");
- document.getElementById("userLabel").textContent=player;
- document.getElementById("profileName").textContent=player;
- save();
-}
-
-function login(){
- let name=document.getElementById("playerName").value.trim();
- if(!name){alert("আপনার নাম লিখুন");return;}
- player=name;
- localStorage.setItem("bikash12_name",player);
- showDashboard();
-}
-
-function logout(){
- localStorage.removeItem("bikash12_name");
- location.reload();
-}
-
-function dailyBonus(){
- let today=new Date().toDateString();
- let last=localStorage.getItem("bikash12_bonus");
- if(last===today){
-  document.getElementById("bonusMessage").textContent="আজকের বোনাস নেওয়া হয়েছে।";
-  return;
- }
- coins+=20;
- localStorage.setItem("bikash12_bonus",today);
- save();
- document.getElementById("bonusMessage").textContent="অভিনন্দন! ২০ কয়েন পেয়েছেন।";
-}
-
-function openSlot(){
- document.getElementById("slotArea").classList.remove("hidden");
-}
-
-function closeSlot(){
- document.getElementById("slotArea").classList.add("hidden");
-}
-
-function spin(){
- if(coins<10){
-  document.getElementById("message").textContent="পর্যাপ্ত কয়েন নেই।";
-  return;
- }
- coins-=10;
- save();
-
- let symbols=["🍒","🍋","🍇","🍉","⭐","🔔"];
- let a=symbols[Math.floor(Math.random()*symbols.length)];
- let b=symbols[Math.floor(Math.random()*symbols.length)];
- let c=symbols[Math.floor(Math.random()*symbols.length)];
-
- document.getElementById("slotResult").textContent=a+" "+b+" "+c;
-
- if(a===b && b===c){
-  coins+=50;
-  document.getElementById("message").textContent="অভিনন্দন! ৫০ কয়েন জিতেছেন!";
- }else{
-  document.getElementById("message").textContent="আবার চেষ্টা করুন!";
- }
- save();
-}
-
-if(player) showDashboard();
-</script>
+<script src="app.js"></script>
 </body>
-</html>
+         </html>
