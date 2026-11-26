@@ -3,225 +3,404 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#b8860b">
-  <title>বিকাশ১২ বাজি | BIKASH12 BAJI</title>
+  <meta name="theme-color" content="#080808">
+  <title>BIKASH12 BAJI</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="top-header">
+<!-- MAIN HEADER -->
+<header class="app-header">
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
   <div class="brand">
-    <span class="crown">👑</span>
+    <span class="brand-crown">👑</span>
     <div>
-      <h1>BIKASH12 BAJI</h1>
-      <small>ROYAL GOLD GAMING CLUB</small>
+      <h1>BIKASH12</h1>
+      <small>BAJI GAMING PLATFORM</small>
     </div>
   </div>
-  <button id="loginBtn" onclick="showPage('login')">Login</button>
+
+  <button class="notification-btn" onclick="showPage('notifications')">
+    🔔 <span class="notification-count">3</span>
+  </button>
 </header>
 
-<nav class="main-nav">
-  <button onclick="showPage('home')">Home</button>
-  <button onclick="showPage('pg')">PG Games</button>
-  <button onclick="showPage('jili')">JILI</button>
-  <button onclick="showPage('profile')">Profile</button>
-  <button onclick="showPage('wallet')">Wallet</button>
-</nav>
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu hidden">
+  <button onclick="showPage('home')">🏠 হোম</button>
+  <button onclick="showPage('profile')">👤 আমার প্রোফাইল</button>
+  <button onclick="showPage('wallet')">💰 ওয়ালেট</button>
+  <button onclick="showPage('history')">📜 গেম ইতিহাস</button>
+  <button onclick="showPage('transactions')">📋 লেনদেনের ইতিহাস</button>
+  <button onclick="showPage('vip')">👑 VIP & Bonus</button>
+  <button onclick="showPage('support')">🎧 সাপোর্ট</button>
+  <button onclick="playerLogout()">🚪 লগআউট</button>
+</div>
 
-<main>
+<!-- BALANCE BAR -->
+<div class="balance-bar">
+  <span>🪙 ৳ <strong id="topBalance">0</strong></span>
+  <button onclick="showPage('wallet')">＋</button>
+</div>
 
-  <!-- HOME -->
+<!-- MAIN CONTENT -->
+<main class="app-container">
+
+  <!-- 1. HOME -->
   <section id="home" class="page">
-    <div class="hero">
-      <div class="hero-crown">👑</div>
-      <h2>WELCOME TO BIKASH12 BAJI</h2>
-      <p>ROYAL GOLD GAMING EXPERIENCE</p>
-      <button onclick="showPage('jili')">Explore Games</button>
+
+    <div class="hero-banner home-banner">
+      <div class="banner-content">
+        <span class="banner-label">ROYAL GAMING</span>
+        <h2>BIKASH12</h2>
+        <h3>PLAY • ENJOY • EXPERIENCE</h3>
+        <button onclick="showPage('jili')">গেম দেখুন</button>
+      </div>
+      <div class="banner-crown">👑</div>
     </div>
 
-    <div class="wallet-preview card">
-      <h2>My Wallet</h2>
-      <div class="balance">৳ <span id="balance">1000</span></div>
-      <small>Virtual Credits Only — No Cash Value</small>
-      <div class="action-grid">
-        <button onclick="showPage('deposit')">Deposit</button>
-        <button onclick="showPage('send')">Send Money</button>
-        <button onclick="showPage('withdraw')">Withdrawal</button>
-      </div>
+    <div class="category-tabs">
+      <button class="active" onclick="filterGames('all',this)">সব গেম</button>
+      <button onclick="filterGames('slot',this)">Slots</button>
+      <button onclick="filterGames('arcade',this)">Arcade</button>
+      <button onclick="filterGames('fishing',this)">Fishing</button>
+      <button onclick="filterGames('table',this)">Table</button>
     </div>
 
-    <div class="card">
-      <h2>Game Categories</h2>
-      <div class="game-grid">
-        <button class="game-tile" onclick="showPage('jili')">
-          🎰<br>JILI Games
-        </button>
-        <button class="game-tile" onclick="showPage('pg')">
-          🎮<br>PG Games
-        </button>
-        <button class="game-tile" onclick="showPage('bonus')">
-          🎁<br>Bonus
-        </button>
-        <button class="game-tile" onclick="showPage('vip')">
-          👑<br>VIP Club
-        </button>
-      </div>
+    <div class="section-heading">
+      <h2>🔥 জনপ্রিয় গেম</h2>
+      <button onclick="showPage('jili')">সব দেখুন ›</button>
+    </div>
+
+    <div class="game-grid">
+      <button class="game-card" data-category="slot" onclick="openGame('Lucky Star')">
+        <span class="game-art art-one">🐉</span>
+        <strong>Lucky Star</strong>
+        <small>JILI</small>
+      </button>
+
+      <button class="game-card" data-category="slot" onclick="openGame('Fortune Gems')">
+        <span class="game-art art-two">💎</span>
+        <strong>Fortune Gems</strong>
+        <small>JILI</small>
+      </button>
+
+      <button class="game-card" data-category="arcade" onclick="openGame('Tiger Warrior')">
+        <span class="game-art art-three">🐯</span>
+        <strong>Tiger Warrior</strong>
+        <small>JILI</small>
+      </button>
+
+      <button class="game-card" data-category="fishing" onclick="openGame('Fishing World')">
+        <span class="game-art art-four">🐠</span>
+        <strong>Fishing World</strong>
+        <small>Arcade</small>
+      </button>
+
+      <button class="game-card" data-category="slot" onclick="openGame('Dragon Treasure')">
+        <span class="game-art art-five">🐲</span>
+        <strong>Dragon Treasure</strong>
+        <small>JILI</small>
+      </button>
+
+      <button class="game-card" data-category="table" onclick="openGame('Card Club')">
+        <span class="game-art art-six">🃏</span>
+        <strong>Card Club</strong>
+        <small>Table</small>
+      </button>
+    </div>
+
+    <div class="section-heading">
+      <h2>🎮 Game Providers</h2>
+    </div>
+
+    <div class="provider-grid">
+      <button onclick="showPage('jili')" class="provider-card">
+        <strong>JILI</strong>
+        <small>Gaming Lobby</small>
+      </button>
+      <button onclick="showPage('pg')" class="provider-card">
+        <strong>PG</strong>
+        <small>Gaming Lobby</small>
+      </button>
     </div>
   </section>
 
-  <!-- LOGIN -->
-  <section id="login" class="page hidden">
-    <div class="card">
-      <h2>Player Login</h2>
-      <input id="playerName" placeholder="আপনার নাম">
-      <button onclick="playerLogin()">প্রবেশ করুন</button>
-      <p id="loginMessage"></p>
-      <small>এটি প্রাথমিক Demo Login। পরবর্তী ধাপে নিরাপদ অ্যাকাউন্ট ব্যবস্থা যুক্ত হবে।</small>
-    </div>
-  </section>
-
-  <!-- JILI -->
-  <section id="jili" class="page hidden">
-    <div class="card">
-      <h2>👑 JILI Games</h2>
-      <div class="game-grid">
-        <div class="game-tile">🎰<br>Slot Demo</div>
-        <div class="game-tile">💎<br>Arcade Demo</div>
-        <div class="game-tile">🐟<br>Fishing Demo</div>
-        <div class="game-tile">🧩<br>Puzzle Demo</div>
-      </div>
-      <p>এগুলো প্রাথমিক Demo বিভাগ।</p>
-    </div>
-  </section>
-
-  <!-- PG -->
+  <!-- 2. PG GAMES -->
   <section id="pg" class="page hidden">
-    <div class="card">
-      <h2>🎮 PG Games</h2>
-      <div class="game-grid">
-        <div class="game-tile">🎯<br>Arcade</div>
-        <div class="game-tile">🧩<br>Puzzle</div>
-        <div class="game-tile">🎲<br>Dice Demo</div>
-        <div class="game-tile">⭐<br>Mini Games</div>
+    <div class="screen-title">
+      <h2>🎮 PG GAMES</h2>
+      <p>PG Gaming Lobby</p>
+    </div>
+
+    <div class="hero-banner pg-banner">
+      <h2>PG GAMES</h2>
+      <p>EXPLORE THE GAME COLLECTION</p>
+    </div>
+
+    <div class="game-grid">
+      <button class="game-card" onclick="openGame('Fortune Tiger')">
+        <span class="game-art art-three">🐯</span>
+        <strong>Fortune Tiger</strong>
+        <small>PG</small>
+      </button>
+      <button class="game-card" onclick="openGame('Fortune Rabbit')">
+        <span class="game-art art-four">🐰</span>
+        <strong>Fortune Rabbit</strong>
+        <small>PG</small>
+      </button>
+      <button class="game-card" onclick="openGame('Wild Bandito')">
+        <span class="game-art art-five">🤠</span>
+        <strong>Wild Bandito</strong>
+        <small>PG</small>
+      </button>
+      <button class="game-card" onclick="openGame('Mahjong Ways')">
+        <span class="game-art art-six">🐉</span>
+        <strong>Mahjong Ways</strong>
+        <small>PG</small>
+      </button>
+    </div>
+  </section>
+
+  <!-- 3. JILI SUPER ACE -->
+  <section id="jili" class="page hidden">
+    <div class="hero-banner jili-banner">
+      <span class="banner-label">ROYAL COLLECTION</span>
+      <h2>👑 JILI SUPER ACE</h2>
+      <p>GAMING LOBBY</p>
+    </div>
+
+    <div class="section-heading">
+      <h2>JILI GAMES</h2>
+    </div>
+
+    <div class="game-list">
+      <div class="game-list-item">
+        <span class="list-art">👑</span>
+        <div><strong>Super Ace</strong><small>JILI Collection</small></div>
+        <button onclick="openGame('Super Ace')">দেখুন</button>
+      </div>
+      <div class="game-list-item">
+        <span class="list-art">💎</span>
+        <div><strong>Fortune Gems</strong><small>JILI Collection</small></div>
+        <button onclick="openGame('Fortune Gems')">দেখুন</button>
+      </div>
+      <div class="game-list-item">
+        <span class="list-art">🐉</span>
+        <div><strong>Dragon Treasure</strong><small>JILI Collection</small></div>
+        <button onclick="openGame('Dragon Treasure')">দেখুন</button>
+      </div>
+      <div class="game-list-item">
+        <span class="list-art">⭐</span>
+        <div><strong>Lucky Star</strong><small>JILI Collection</small></div>
+        <button onclick="openGame('Lucky Star')">দেখুন</button>
       </div>
     </div>
   </section>
 
-  <!-- WALLET -->
-  <section id="wallet" class="page hidden">
-    <div class="card">
-      <h2>👑 My Wallet</h2>
-      <div class="balance">৳ <span id="walletBalance">1000</span></div>
-      <p>শুধুমাত্র ভার্চুয়াল ক্রেডিট</p>
-      <div class="action-grid">
-        <button onclick="showPage('deposit')">Deposit</button>
-        <button onclick="showPage('send')">Send Money</button>
-        <button onclick="showPage('withdraw')">Withdrawal</button>
-      </div>
+  <!-- 4. PLAYER PROFILE -->
+  <section id="profile" class="page hidden">
+    <div class="screen-title">
+      <h2>👤 PLAYER PROFILE</h2>
     </div>
+
+    <div class="profile-card">
+      <div class="avatar">👤</div>
+      <h2 id="profileName">Player Name</h2>
+      <p>Player ID: <span id="playerId">—</span></p>
+      <span class="vip-tag">👑 VIP MEMBER</span>
+    </div>
+
+    <div class="profile-menu">
+      <button onclick="showPage('wallet')">💰 আমার ওয়ালেট <span>›</span></button>
+      <button onclick="showPage('history')">🎮 গেম ইতিহাস <span>›</span></button>
+      <button onclick="showPage('transactions')">📜 লেনদেনের ইতিহাস <span>›</span></button>
+      <button onclick="showPage('vip')">👑 VIP & Bonus <span>›</span></button>
+      <button onclick="showPage('support')">🎧 সাপোর্ট <span>›</span></button>
+      <button onclick="playerLogout()">🚪 লগআউট <span>›</span></button>
+    </div>
+  </section>
+
+  <!-- 5. ADMIN PANEL -->
+  <section id="admin" class="page hidden">
+    <div class="screen-title">
+      <h2>⚙️ ADMIN PANEL</h2>
+      <p>Administration Center</p>
+    </div>
+
+    <div class="admin-banner">
+      <h2>👑 ADMIN CONTROL</h2>
+      <p>Virtual Credit Management</p>
+    </div>
+
+    <div class="admin-stats">
+      <div><strong id="pendingCount">0</strong><small>Pending</small></div>
+      <div><strong id="approvedCount">0</strong><small>Approved</small></div>
+    </div>
+
     <div class="card">
-      <h2>Transaction History</h2>
-      <div id="history">এখনো কোনো রিকুয়েস্ট নেই।</div>
+      <h3>📱 Deposit Number Settings</h3>
+      <label>bKash Number</label>
+      <input id="newBkash" placeholder="নম্বর লিখুন">
+      <label>Nagad Number</label>
+      <input id="newNagad" placeholder="নম্বর লিখুন">
+      <button class="gold-button" onclick="updateNumbers()">পরিবর্তন সংরক্ষণ</button>
+    </div>
+
+    <div class="card">
+      <h3>Player Requests</h3>
+      <div id="adminRequests">রিকুয়েস্ট লোড হচ্ছে...</div>
+    </div>
+  </section>
+
+  <!-- 6. WALLET -->
+  <section id="wallet" class="page hidden">
+    <div class="screen-title">
+      <h2>💰 MY WALLET</h2>
+    </div>
+
+    <div class="wallet-card">
+      <small>AVAILABLE VIRTUAL BALANCE</small>
+      <h1>৳ <span id="walletBalance">0</span></h1>
+      <p>Virtual Credits Only — No Cash Value</p>
+    </div>
+
+    <div class="wallet-actions">
+      <button onclick="showPage('deposit')">🟡 Deposit</button>
+      <button onclick="showPage('send')">💸 Send Money</button>
+      <button onclick="showPage('withdraw')">💰 Withdrawal</button>
+    </div>
+
+    <div class="card">
+      <h3>Recent Transactions</h3>
+      <div id="history">কোনো লেনদেন নেই।</div>
     </div>
   </section>
 
   <!-- DEPOSIT -->
   <section id="deposit" class="page hidden">
+    <div class="screen-title"><h2>🟡 DEPOSIT</h2></div>
     <div class="card">
-      <h2>Deposit Request</h2>
-      <p>ভার্চুয়াল ক্রেডিটের Demo Request</p>
-      <div class="payment-number">
-        <h3>bKash Demo Number</h3>
-        <strong id="bkashNumber">DEMO NUMBER</strong>
-        <h3>Nagad Demo Number</h3>
-        <strong id="nagadNumber">DEMO NUMBER</strong>
+      <h3>পদ্ধতি নির্বাচন করুন</h3>
+      <div class="payment-methods">
+        <button onclick="selectPayment('bKash',this)">bKash</button>
+        <button onclick="selectPayment('Nagad',this)">Nagad</button>
       </div>
-      <input id="depositAmount" type="number" placeholder="ক্রেডিটের পরিমাণ">
-      <input id="depositRef" placeholder="Demo Reference ID">
-      <button onclick="sendRequest('Deposit')">Request পাঠান</button>
+
+      <div class="number-panel">
+        <small>নির্বাচিত নম্বর</small>
+        <h2 id="paymentNumber">নম্বর নির্বাচন করুন</h2>
+        <p id="paymentType">Send Money</p>
+      </div>
+
+      <label>Reference ID</label>
+      <input id="depositRef" placeholder="Reference ID">
+      <label>পরিমাণ</label>
+      <input id="depositAmount" type="number" placeholder="পরিমাণ লিখুন">
+      <button class="gold-button" onclick="sendRequest('Deposit')">রিকুয়েস্ট পাঠান</button>
     </div>
   </section>
 
   <!-- SEND MONEY -->
   <section id="send" class="page hidden">
+    <div class="screen-title"><h2>💸 SEND MONEY</h2></div>
     <div class="card">
-      <h2>Send Money Request</h2>
+      <label>প্রাপকের Player ID</label>
       <input id="receiver" placeholder="Player ID">
-      <input id="sendAmount" type="number" placeholder="ভার্চুয়াল ক্রেডিট">
-      <button onclick="sendRequest('Send Money')">Request পাঠান</button>
+      <label>ভার্চুয়াল ক্রেডিটের পরিমাণ</label>
+      <input id="sendAmount" type="number" placeholder="পরিমাণ">
+      <button class="gold-button" onclick="sendRequest('Send Money')">রিকুয়েস্ট পাঠান</button>
     </div>
   </section>
 
-  <!-- WITHDRAW -->
+  <!-- WITHDRAWAL -->
   <section id="withdraw" class="page hidden">
+    <div class="screen-title"><h2>💰 WITHDRAWAL</h2></div>
     <div class="card">
-      <h2>Withdrawal Request</h2>
-      <p>শুধুমাত্র ভার্চুয়াল ব্যালেন্স ব্যবস্থাপনা।</p>
-      <input id="withdrawAmount" type="number" placeholder="ক্রেডিটের পরিমাণ">
-      <button onclick="sendRequest('Withdrawal')">Request পাঠান</button>
+      <p>ভার্চুয়াল ক্রেডিট ব্যালেন্স ব্যবস্থাপনার জন্য অনুরোধ পাঠান।</p>
+      <label>পরিমাণ</label>
+      <input id="withdrawAmount" type="number" placeholder="পরিমাণ">
+      <button class="gold-button" onclick="sendRequest('Withdrawal')">রিকুয়েস্ট পাঠান</button>
     </div>
   </section>
 
-  <!-- PROFILE -->
-  <section id="profile" class="page hidden">
-    <div class="card">
-      <h2>👤 Player Profile</h2>
-      <p>Player: <strong id="profileName">Guest</strong></p>
-      <button onclick="showPage('login')">Login</button>
-      <button onclick="playerLogout()">Logout</button>
-    </div>
-  </section>
-
-  <!-- BONUS -->
-  <section id="bonus" class="page hidden">
-    <div class="card">
-      <h2>🎁 Bonus Center</h2>
-      <p>ভার্চুয়াল Demo Bonus</p>
-      <button onclick="showPage('home')">Home</button>
-    </div>
-  </section>
-
-  <!-- VIP -->
+  <!-- 7. VIP & BONUS -->
   <section id="vip" class="page hidden">
+    <div class="vip-banner">
+      <span>👑</span>
+      <h1>VIP LEVEL</h1>
+      <h2>ROYAL MEMBER</h2>
+    </div>
+
     <div class="card">
-      <h2>👑 VIP Club</h2>
-      <p>VIP Profile ও Badge</p>
+      <h3>আপনার VIP Progress</h3>
+      <div class="progress-bar"><div id="vipProgress"></div></div>
+      <p>VIP Rewards</p>
+      <div class="reward-list">
+        <p>✅ Daily Reward</p>
+        <p>✅ Welcome Bonus</p>
+        <p>✅ Referral Bonus</p>
+        <p>✅ Virtual Credits</p>
+      </div>
     </div>
   </section>
 
-  <!-- ADMIN -->
-  <section id="admin" class="page hidden">
-    <div class="card">
-      <h2>Admin Panel</h2>
-      <h3>Demo নম্বর পরিবর্তন</h3>
-      <input id="newBkash" placeholder="bKash Demo Number">
-      <input id="newNagad" placeholder="Nagad Demo Number">
-      <button onclick="updateNumbers()">Save Numbers</button>
-      <p id="adminMessage"></p>
-      <h3>Player Requests</h3>
-      <div id="adminRequests">কোনো Request নেই।</div>
-    </div>
-  </section>
-
-  <!-- SUPPORT -->
+  <!-- 8. CUSTOMER SUPPORT -->
   <section id="support" class="page hidden">
+    <div class="support-banner">
+      <span>🎧</span>
+      <h1>24/7 SUPPORT</h1>
+      <p>আমরা আপনাকে সাহায্য করতে প্রস্তুত</p>
+    </div>
+
     <div class="card">
-      <h2>Customer Support</h2>
-      <p>Support Center</p>
-      <input placeholder="আপনার প্রশ্ন লিখুন">
-      <button>Send Message</button>
+      <h3>Support Ticket</h3>
+      <input id="supportSubject" placeholder="বিষয়ের নাম">
+      <textarea id="supportMessage" placeholder="আপনার সমস্যা লিখুন"></textarea>
+      <button class="gold-button" onclick="sendSupport()">টিকিট পাঠান</button>
+    </div>
+  </section>
+
+  <!-- GAME HISTORY -->
+  <section id="history" class="page hidden">
+    <div class="screen-title"><h2>📜 GAME HISTORY</h2></div>
+    <div class="card" id="gameHistory">কোনো ইতিহাস নেই।</div>
+  </section>
+
+  <!-- TRANSACTIONS -->
+  <section id="transactions" class="page hidden">
+    <div class="screen-title"><h2>📋 TRANSACTION HISTORY</h2></div>
+    <div class="card" id="transactionHistory">কোনো লেনদেন নেই।</div>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <section id="notifications" class="page hidden">
+    <div class="screen-title"><h2>🔔 NOTIFICATIONS</h2></div>
+    <div class="card">আপনার নোটিফিকেশন এখানে দেখা যাবে।</div>
+  </section>
+
+  <!-- GAME VIEW -->
+  <section id="gameView" class="page hidden">
+    <div class="screen-title"><h2 id="selectedGame">Game</h2></div>
+    <div class="card">
+      <div class="game-art game-placeholder">🎮</div>
+      <p>এই গেমের জন্য অনুমোদিত ভার্চুয়াল গেম ইন্টিগ্রেশন প্রয়োজন।</p>
+      <button class="gold-button" onclick="showPage('home')">ফিরে যান</button>
     </div>
   </section>
 
 </main>
 
-<footer>
-  <h3>👑 BIKASH12 BAJI</h3>
-  <p>Virtual Credits Only</p>
-  <p>কোনো বাস্তব অর্থের জুয়া বা নগদ লেনদেন নেই।</p>
-  <button onclick="showPage('admin')">Admin Demo</button>
-</footer>
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav">
+  <button onclick="showPage('home')"><span>🏠</span><small>হোম</small></button>
+  <button onclick="showPage('jili')"><span>🎮</span><small>গেম</small></button>
+  <button onclick="showPage('wallet')"><span>💰</span><small>ওয়ালেট</small></button>
+  <button onclick="showPage('vip')"><span>👑</span><small>বোনাস</small></button>
+  <button onclick="showPage('profile')"><span>👤</span><small>প্রোফাইল</small></button>
+</nav>
 
 <script src="app.js"></script>
 </body>
-         </html>
+  </html>
