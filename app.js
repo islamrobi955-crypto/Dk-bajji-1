@@ -507,8 +507,14 @@ function renderPlayerInfo() {
 
 
 // ==================================================
-// WALLET PAGE
+// WALLET PAGE — BIKASH + NAGAD
 // ==================================================
+
+function paymentMethodLabel(method) {
+  if (method === "virtual_a") return "বিকাশ";
+  if (method === "virtual_b") return "নগদ";
+  return escapeHTML(method || "Unknown");
+}
 
 async function renderWalletPage() {
   const content = $("walletContent");
@@ -518,17 +524,21 @@ async function renderWalletPage() {
 
   const results = await Promise.all([
     supabaseClient.from("virtual_credit_settings")
-      .select("virtual_a_number,virtual_b_number").limit(1).maybeSingle(),
+      .select("virtual_a_number,virtual_b_number")
+      .limit(1)
+      .maybeSingle(),
 
     supabaseClient.from("deposit_requests")
       .select("id,amount,payment_method,reference_id,status,created_at")
       .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false }).limit(10),
+      .order("created_at", { ascending: false })
+      .limit(10),
 
     supabaseClient.from("withdrawal_requests")
       .select("id,mobile_number,amount,status,created_at")
       .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false }).limit(10)
+      .order("created_at", { ascending: false })
+      .limit(10)
   ]);
 
   const settings = results[0].error ? null : results[0].data;
@@ -536,39 +546,56 @@ async function renderWalletPage() {
   const withdrawals = results[2].error ? [] : results[2].data || [];
 
   if (results.some(r => r.error)) {
-    console.error("Wallet load errors:", results.filter(r => r.error).map(r => r.error));
+    console.error("Wallet load errors:", results.filter(r => r.error));
   }
 
   content.innerHTML = `
     <div class="premium-panel">
       ${panelHeading("♛ MY VIRTUAL WALLET")}
       <p>Available Balance</p>
-      <h2 style="color:#ffe49a;font-size:30px;">${money(currentPlayer.coins)}</h2>
+      <h2 style="color:#ffe49a;font-size:30px;">
+        ${money(currentPlayer.coins)}
+      </h2>
       <p>আপনার বর্তমান Wallet Balance</p>
     </div>
 
     <div class="premium-panel" style="margin-top:15px;">
       ${panelHeading("＋ DEPOSIT REQUEST")}
-      <p>Virtual A অথবা Virtual B নির্বাচন করুন।</p>
+      <p>বিকাশ অথবা নগদ নির্বাচন করুন।</p>
 
       <label>Payment Method</label>
       <select id="depositMethod" style="width:100%;">
-        <option value="virtual_a">Virtual A</option>
-        <option value="virtual_b">Virtual B</option>
+        <option value="virtual_a">বিকাশ</option>
+        <option value="virtual_b">নগদ</option>
       </select>
 
-      <div style="padding:12px;border:1px solid #d4af37;border-radius:10px;margin:10px 0;">
-        <p id="depositNumberLabel">Virtual A Number</p>
-        <strong id="depositNumberValue">${escapeHTML(settings?.virtual_a_number || "Admin এখনো নম্বর সেট করেননি")}</strong>
-        <button type="button" class="royal-button" id="copyDepositNumberBtn">COPY NUMBER</button>
+      <div style="padding:12px;border:1px solid #d4af37;
+        border-radius:10px;margin:10px 0;">
+
+        <p id="depositNumberLabel">বিকাশ নম্বর</p>
+
+        <strong id="depositNumberValue">
+          ${escapeHTML(settings?.virtual_a_number || "Admin এখনো নম্বর সেট করেননি")}
+        </strong>
+
+        <button type="button" class="royal-button"
+          id="copyDepositNumberBtn">
+          COPY NUMBER
+        </button>
       </div>
 
       <form id="depositForm">
         <label>Amount</label>
-        <input id="depositAmount" type="number" min="1" step="1" inputmode="numeric" required>
+        <input id="depositAmount" type="number" min="1"
+          step="1" inputmode="numeric" required>
+
         <label>Reference ID (Optional)</label>
         <input id="depositReference" type="text" maxlength="100">
-        <button class="royal-button" type="submit">SUBMIT DEPOSIT REQUEST</button>
+
+        <button class="royal-button" type="submit">
+          SUBMIT DEPOSIT REQUEST
+        </button>
+
         <p id="depositResult" aria-live="polite"></p>
       </form>
     </div>
@@ -579,27 +606,40 @@ async function renderWalletPage() {
 
       <form id="withdrawalForm">
         <label>Your Mobile Number</label>
-        <input id="withdrawalMobile" type="tel" inputmode="numeric" maxlength="11"
-          pattern="01[3-9][0-9]{8}" value="${escapeHTML(currentPlayer.mobile_number || "")}" required>
+        <input id="withdrawalMobile" type="tel"
+          inputmode="numeric" maxlength="11"
+          pattern="01[3-9][0-9]{8}"
+          value="${escapeHTML(currentPlayer.mobile_number || "")}"
+          required>
 
         <label>Amount</label>
-        <input id="withdrawalAmount" type="number" min="1" step="1" inputmode="numeric" required>
+        <input id="withdrawalAmount" type="number"
+          min="1" step="1" inputmode="numeric" required>
 
         <label>Transaction PIN</label>
-        <input id="withdrawalPin" type="password" inputmode="numeric" maxlength="6"
+        <input id="withdrawalPin" type="password"
+          inputmode="numeric" maxlength="6"
           pattern="[0-9]{4}|[0-9]{6}" required>
 
-        <button class="royal-button" type="submit">SUBMIT WITHDRAWAL REQUEST</button>
+        <button class="royal-button" type="submit">
+          SUBMIT WITHDRAWAL REQUEST
+        </button>
+
         <p id="withdrawalResult" aria-live="polite"></p>
       </form>
     </div>
 
     <div class="premium-panel" style="margin-top:15px;">
       ${panelHeading("DEPOSIT REQUEST HISTORY")}
+
       ${deposits.length ? deposits.map(item => `
-        <div style="border-bottom:1px solid rgba(212,175,55,.25);padding:10px 0;">
+        <div style="border-bottom:1px solid rgba(212,175,55,.25);
+          padding:10px 0;">
           <strong>${money(item.amount)}</strong>
-          <p>Method: ${escapeHTML(item.payment_method)}</p>
+          <p>Payment Method: ${paymentMethodLabel(item.payment_method)}</p>
+          ${item.reference_id
+            ? `<p>Reference ID: ${escapeHTML(item.reference_id)}</p>`
+            : ""}
           <p>Status: ${statusText(item.status)}</p>
           <small>${formatDate(item.created_at)}</small>
         </div>
@@ -608,8 +648,10 @@ async function renderWalletPage() {
 
     <div class="premium-panel" style="margin-top:15px;">
       ${panelHeading("WITHDRAWAL REQUEST HISTORY")}
+
       ${withdrawals.length ? withdrawals.map(item => `
-        <div style="border-bottom:1px solid rgba(212,175,55,.25);padding:10px 0;">
+        <div style="border-bottom:1px solid rgba(212,175,55,.25);
+          padding:10px 0;">
           <strong>${money(item.amount)}</strong>
           <p>Mobile: ${escapeHTML(item.mobile_number)}</p>
           <p>Status: ${statusText(item.status)}</p>
@@ -621,17 +663,28 @@ async function renderWalletPage() {
 
   $("depositMethod")?.addEventListener("change", () => {
     const method = $("depositMethod").value;
-    const number = method === "virtual_b" ? settings?.virtual_b_number : settings?.virtual_a_number;
+    const isNagad = method === "virtual_b";
 
-    $("depositNumberLabel").textContent = method === "virtual_b" ? "Virtual B Number" : "Virtual A Number";
-    $("depositNumberValue").textContent = number || "Admin এখনো নম্বর সেট করেননি";
+    const number = isNagad
+      ? settings?.virtual_b_number
+      : settings?.virtual_a_number;
+
+    $("depositNumberLabel").textContent =
+      isNagad ? "নগদ নম্বর" : "বিকাশ নম্বর";
+
+    $("depositNumberValue").textContent =
+      number || "Admin এখনো নম্বর সেট করেননি";
   });
 
   $("copyDepositNumberBtn")?.addEventListener("click", async () => {
     const number = $("depositNumberValue").textContent.trim();
 
     if (!number || number.includes("সেট করেননি")) {
-      return showResult("depositResult", "Admin এখনো Payment Number সেট করেননি।", "error");
+      return showResult(
+        "depositResult",
+        "Admin এখনো Payment Number সেট করেননি।",
+        "error"
+      );
     }
 
     try {
@@ -644,7 +697,7 @@ async function renderWalletPage() {
 
   $("depositForm")?.addEventListener("submit", submitDepositRequest);
   $("withdrawalForm")?.addEventListener("submit", submitWithdrawalRequest);
-}
+       }
 
 
 // ==================================================
