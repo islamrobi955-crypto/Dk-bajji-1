@@ -1,13 +1,11 @@
 /* =========================================
    BIKASH12 BAJI
    Royal Neon Premium Edition
-   Supabase Authentication
+   Supabase Authentication + Profile
 ========================================= */
 
 // SUPABASE CONNECTION
 const SUPABASE_URL = "https://yfvntswzolcagfauxons.supabase.co";
-
-// সর্বশেষ দেওয়া Publishable Key
 const SUPABASE_KEY = "sb_publishable_TPjwrOvBZBPffBbfGg2g_A_Zws001wL";
 
 const supabaseClient = window.supabase.createClient(
@@ -23,6 +21,7 @@ let currentUser = null;
 let currentPlayer = null;
 let isAdmin = false;
 let isBlocked = false;
+let isEditingProfile = false;
 
 
 // =========================================
@@ -281,6 +280,7 @@ async function loadApplication(user) {
   isAdmin = user.id === ADMIN_UID;
   currentPlayer = null;
   isBlocked = false;
+  isEditingProfile = false;
 
   if (!isAdmin) {
 
@@ -352,6 +352,196 @@ async function loadApplication(user) {
 
 
 // =========================================
+// PLAYER ID COPY
+// =========================================
+
+async function copyPlayerId() {
+  if (!currentUser) return;
+
+  try {
+    await navigator.clipboard.writeText(currentUser.id);
+    alert("Player ID Copy হয়েছে!");
+
+  } catch (error) {
+    const textArea = document.createElement("textarea");
+
+    textArea.value = currentUser.id;
+    document.body.appendChild(textArea);
+
+    textArea.select();
+
+    const copied = document.execCommand("copy");
+
+    textArea.remove();
+
+    alert(
+      copied
+        ? "Player ID Copy হয়েছে!"
+        : "Copy করা যায়নি। Player ID হাতে Copy করুন।"
+    );
+  }
+}
+
+
+// =========================================
+// PROFILE EDIT FORM
+// =========================================
+
+function renderProfileEditForm() {
+  if (!currentPlayer || isAdmin || isBlocked) return;
+
+  const content = $("profileContent");
+  if (!content) return;
+
+  content.innerHTML = `
+    <div class="premium-panel">
+
+      <h3>♛ EDIT PLAYER PROFILE</h3>
+
+      <p>আপনার নতুন তথ্য লিখুন।</p>
+
+      <form id="editProfileForm">
+
+        <label>Player Name</label>
+
+        <input
+          id="editPlayerName"
+          type="text"
+          minlength="2"
+          maxlength="40"
+          value="${escapeHTML(currentPlayer.display_name || "")}"
+          placeholder="আপনার নাম"
+          required
+        >
+
+        <label>Mobile Number</label>
+
+        <input
+          id="editPlayerMobile"
+          type="tel"
+          inputmode="numeric"
+          maxlength="11"
+          pattern="01[3-9][0-9]{8}"
+          value="${escapeHTML(currentPlayer.mobile_number || "")}"
+          placeholder="01XXXXXXXXX"
+          required
+        >
+
+        <div style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:15px;
+        ">
+
+          <button
+            class="royal-button"
+            id="saveProfileBtn"
+            type="submit"
+          >
+            SAVE CHANGES
+          </button>
+
+          <button
+            class="royal-button"
+            id="cancelProfileBtn"
+            type="button"
+          >
+            CANCEL
+          </button>
+
+        </div>
+
+        <p
+          id="profileEditResult"
+          aria-live="polite"
+        ></p>
+
+      </form>
+
+    </div>
+  `;
+
+  $("cancelProfileBtn")?.addEventListener("click", () => {
+    isEditingProfile = false;
+    renderPlayerInfo();
+  });
+
+  $("editProfileForm")?.addEventListener(
+    "submit",
+    savePlayerProfile
+  );
+}
+
+
+// =========================================
+// SAVE PROFILE CHANGES
+// =========================================
+
+async function savePlayerProfile(event) {
+  event.preventDefault();
+
+  if (!currentUser || !currentPlayer || isBlocked) return;
+
+  const name = $("editPlayerName").value.trim();
+  const mobile = $("editPlayerMobile").value.trim();
+
+  const button = $("saveProfileBtn");
+  const result = $("profileEditResult");
+
+  if (name.length < 2 || name.length > 40) {
+    result.textContent = "নাম ২ থেকে ৪০ অক্ষরের মধ্যে দিন।";
+    return;
+  }
+
+  if (!/^01[3-9]\d{8}$/.test(mobile)) {
+    result.textContent =
+      "সঠিক ১১ সংখ্যার বাংলাদেশি Mobile Number দিন।";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "SAVING...";
+
+  result.textContent = "আপনার তথ্য সংরক্ষণ হচ্ছে...";
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "update_player_profile",
+      {
+        p_display_name: name,
+        p_mobile_number: mobile
+      }
+    );
+
+    if (error) throw error;
+
+    if (data !== true) {
+      throw new Error("Profile update নিশ্চিত করা যায়নি।");
+    }
+
+    currentPlayer.display_name = name;
+    currentPlayer.mobile_number = mobile;
+
+    isEditingProfile = false;
+
+    renderPlayerInfo();
+
+    alert("আপনার Profile সফলভাবে Update হয়েছে!");
+
+  } catch (error) {
+    console.error("Profile update error:", error);
+
+    result.textContent =
+      "Update করা যায়নি: " + error.message;
+
+    button.disabled = false;
+    button.textContent = "SAVE CHANGES";
+  }
+}
+
+
+// =========================================
 // PLAYER INFORMATION
 // =========================================
 
@@ -388,31 +578,140 @@ function renderPlayerInfo() {
   }
 
   if ($("profileContent")) {
+
+    if (isEditingProfile && !isAdmin && !isBlocked) {
+      renderProfileEditForm();
+      return;
+    }
+
+    const avatarLetter = escapeHTML(
+      (name || "P").trim().charAt(0).toUpperCase()
+    );
+
     $("profileContent").innerHTML = `
       <div class="premium-panel">
-        <h3>${escapeHTML(name)}</h3>
-        <p>Player ID: ${escapeHTML(playerId)}</p>
-        <p>Email: ${escapeHTML(currentUser.email)}</p>
-        <p>Mobile: ${escapeHTML(
+
+        <div style="
+          text-align:center;
+          padding:15px 5px;
+        ">
+
+          <div style="
+            width:82px;
+            height:82px;
+            margin:0 auto 12px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:34px;
+            font-weight:bold;
+            color:#080808;
+            background:linear-gradient(135deg,#ffe49a,#d4af37,#9c7415);
+            border:3px solid #ffe49a;
+            box-shadow:0 0 18px rgba(212,175,55,.65);
+          ">
+            ${avatarLetter}
+          </div>
+
+          <h2 style="
+            color:#ffe49a;
+            margin:5px 0;
+          ">
+            ${escapeHTML(name)}
+          </h2>
+
+          <div style="
+            display:inline-block;
+            padding:6px 15px;
+            border:1px solid #d4af37;
+            border-radius:20px;
+            color:#ffe49a;
+            font-size:12px;
+            letter-spacing:1px;
+          ">
+            ♛ ROYAL PLAYER
+          </div>
+
+        </div>
+
+        <hr style="border-color:rgba(212,175,55,.3)">
+
+        <p><strong>Player ID:</strong></p>
+
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:8px;
+          flex-wrap:wrap;
+        ">
+          <span style="
+            font-size:12px;
+            word-break:break-all;
+          ">
+            ${escapeHTML(playerId)}
+          </span>
+
+          <button
+            class="royal-button"
+            id="copyPlayerIdBtn"
+            type="button"
+          >
+            COPY ID
+          </button>
+        </div>
+
+        <p><strong>Email:</strong> ${escapeHTML(currentUser.email || "-")}</p>
+
+        <p><strong>Mobile:</strong> ${escapeHTML(
           currentPlayer?.mobile_number || "Not set"
         )}</p>
-        <p>Virtual Coins: ${coins}</p>
-        <p>Account Status: ${
+
+        <p><strong>Virtual Coins:</strong> ${coins}</p>
+
+        <p><strong>Account Status:</strong> ${
           isAdmin
             ? "Admin"
             : isBlocked
               ? "Inactive"
               : "Active"
         }</p>
-        <p>Joined: ${
+
+        <p><strong>Joined:</strong> ${
           currentPlayer?.created_at
             ? new Date(
                 currentPlayer.created_at
               ).toLocaleDateString("en-GB")
             : "-"
         }</p>
+
+        ${
+          !isAdmin && !isBlocked
+            ? `
+              <button
+                class="royal-button"
+                id="editProfileBtn"
+                type="button"
+                style="width:100%;margin-top:12px;"
+              >
+                ✎ EDIT PROFILE
+              </button>
+            `
+            : ""
+        }
+
       </div>
     `;
+
+    $("copyPlayerIdBtn")?.addEventListener(
+      "click",
+      copyPlayerId
+    );
+
+    $("editProfileBtn")?.addEventListener("click", () => {
+      isEditingProfile = true;
+      renderPlayerInfo();
+    });
   }
 
   if ($("walletContent")) {
@@ -489,6 +788,11 @@ function showPage(pageName) {
 
   if (target) {
     target.hidden = false;
+  }
+
+  if (pageName === "profile") {
+    isEditingProfile = false;
+    renderPlayerInfo();
   }
 
   if (pageName === "support") {
@@ -629,6 +933,7 @@ $("logoutBtn")?.addEventListener("click", async () => {
   currentPlayer = null;
   isAdmin = false;
   isBlocked = false;
+  isEditingProfile = false;
 
   $("appSection").hidden = true;
   $("authSection").hidden = false;
@@ -678,6 +983,7 @@ supabaseClient.auth.onAuthStateChange(
       currentPlayer = null;
       isAdmin = false;
       isBlocked = false;
+      isEditingProfile = false;
 
       $("appSection").hidden = true;
       $("authSection").hidden = false;
