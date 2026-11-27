@@ -12,7 +12,6 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
-
 // ONLY AUTHORIZED ADMIN
 const ADMIN_UID = "1470dafc-ecc1-49b7-afc3-6b9662f00015";
 
