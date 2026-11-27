@@ -6,7 +6,9 @@
 
 // SUPABASE CONNECTION
 const SUPABASE_URL = "https://yfvntswzolcagfauxons.supabase.co";
-const SUPABASE_KEY = "sb_publishable_TPjwrOvBZBPffBbfGg2g_A_Zws001w";
+
+// সর্বশেষ দেওয়া Publishable Key
+const SUPABASE_KEY = "sb_publishable_TPjwrOvBZBPffBbfGg2g_A_Zws001wL";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
@@ -54,8 +56,15 @@ function showAuthForm(formName) {
     if (form) form.hidden = id !== formName;
   });
 
-  $("loginTab")?.classList.toggle("active", formName === "loginForm");
-  $("registerTab")?.classList.toggle("active", formName === "registerForm");
+  $("loginTab")?.classList.toggle(
+    "active",
+    formName === "loginForm"
+  );
+
+  $("registerTab")?.classList.toggle(
+    "active",
+    formName === "registerForm"
+  );
 
   showMessage("");
 }
@@ -100,18 +109,30 @@ $("registerForm")?.addEventListener("submit", async (event) => {
   }
 
   if (!/^01[3-9]\d{8}$/.test(mobile)) {
-    return showMessage("সঠিক ১১ সংখ্যার বাংলাদেশি Mobile Number দিন।", "error");
+    return showMessage(
+      "সঠিক ১১ সংখ্যার বাংলাদেশি Mobile Number দিন।",
+      "error"
+    );
   }
 
   if (password.length < 6) {
-    return showMessage("Password কমপক্ষে ৬ অক্ষরের হতে হবে।", "error");
+    return showMessage(
+      "Password কমপক্ষে ৬ অক্ষরের হতে হবে।",
+      "error"
+    );
   }
 
   if (password !== confirmPassword) {
-    return showMessage("দুটি Password মিলছে না।", "error");
+    return showMessage(
+      "দুটি Password মিলছে না।",
+      "error"
+    );
   }
 
-  const button = $("registerForm").querySelector('button[type="submit"]');
+  const button = $("registerForm").querySelector(
+    'button[type="submit"]'
+  );
+
   button.disabled = true;
   button.textContent = "PLEASE WAIT...";
 
@@ -134,18 +155,26 @@ $("registerForm")?.addEventListener("submit", async (event) => {
         "Account তৈরি হয়েছে। আপনার Account চালু হচ্ছে...",
         "success"
       );
+
       await loadApplication(data.user);
+
     } else {
+      $("registerForm").reset();
+
+      showAuthForm("loginForm");
+
       showMessage(
         "Registration সফল! Email-এ Verification Link পাঠানো হয়েছে। Email Verify করে Login করুন।",
         "success"
       );
-      $("registerForm").reset();
-      showAuthForm("loginForm");
     }
 
   } catch (error) {
-    showMessage(error.message || "Registration করা যায়নি।", "error");
+    showMessage(
+      error.message || "Registration করা যায়নি।",
+      "error"
+    );
+
   } finally {
     button.disabled = false;
     button.textContent = "CREATE ACCOUNT";
@@ -163,22 +192,30 @@ $("loginForm")?.addEventListener("submit", async (event) => {
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
 
-  const button = $("loginForm").querySelector('button[type="submit"]');
+  const button = $("loginForm").querySelector(
+    'button[type="submit"]'
+  );
+
   button.disabled = true;
   button.textContent = "LOGGING IN...";
 
   try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
     if (error) throw error;
 
     await loadApplication(data.user);
 
   } catch (error) {
-    showMessage(error.message || "Login করা যায়নি।", "error");
+    showMessage(
+      error.message || "Login করা যায়নি।",
+      "error"
+    );
+
   } finally {
     button.disabled = false;
     button.textContent = "LOGIN NOW";
@@ -195,14 +232,23 @@ $("resetForm")?.addEventListener("submit", async (event) => {
 
   const email = $("resetEmail").value.trim();
 
+  const button = $("resetForm").querySelector(
+    'button[type="submit"]'
+  );
+
+  button.disabled = true;
+  button.textContent = "SENDING...";
+
   try {
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(
-      email,
-      {
-        redirectTo: window.location.origin +
-          window.location.pathname
-      }
-    );
+    const { error } =
+      await supabaseClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo:
+            window.location.origin +
+            window.location.pathname
+        }
+      );
 
     if (error) throw error;
 
@@ -212,7 +258,14 @@ $("resetForm")?.addEventListener("submit", async (event) => {
     );
 
   } catch (error) {
-    showMessage(error.message || "Reset Link পাঠানো যায়নি।", "error");
+    showMessage(
+      error.message || "Reset Link পাঠানো যায়নি।",
+      "error"
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "SEND RESET LINK";
   }
 });
 
@@ -230,37 +283,55 @@ async function loadApplication(user) {
   isBlocked = false;
 
   if (!isAdmin) {
+
     const { data, error } = await supabaseClient
       .from("players")
-      .select("user_id,display_name,coins,mobile_number,is_active,created_at")
+      .select(
+        "user_id,display_name,coins,mobile_number,is_active,created_at"
+      )
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (error) {
       console.error("Player load error:", error);
-      showMessage("Player তথ্য লোড করা যায়নি: " + error.message, "error");
+
+      showMessage(
+        "Player তথ্য লোড করা যায়নি: " + error.message,
+        "error"
+      );
+
       return;
     }
 
     if (!data) {
-      showMessage("Player Account পাওয়া যায়নি। Admin-এর সঙ্গে যোগাযোগ করুন।", "error");
+      showMessage(
+        "Player Account পাওয়া যায়নি। Admin-এর সঙ্গে যোগাযোগ করুন।",
+        "error"
+      );
+
       return;
     }
 
     currentPlayer = data;
     isBlocked = data.is_active === false;
 
-    // Registration-এর Mobile Number metadata থেকে সেট করার চেষ্টা
-    if (!data.mobile_number && user.user_metadata?.mobile_number && !isBlocked) {
-      const { error: mobileError } = await supabaseClient.rpc(
-        "set_player_mobile_number",
-        {
-          p_mobile_number: user.user_metadata.mobile_number
-        }
-      );
+    // Registration-এর Mobile Number সেট করার চেষ্টা
+    if (
+      !data.mobile_number &&
+      user.user_metadata?.mobile_number &&
+      !isBlocked
+    ) {
+      const { error: mobileError } =
+        await supabaseClient.rpc(
+          "set_player_mobile_number",
+          {
+            p_mobile_number: user.user_metadata.mobile_number
+          }
+        );
 
       if (!mobileError) {
-        currentPlayer.mobile_number = user.user_metadata.mobile_number;
+        currentPlayer.mobile_number =
+          user.user_metadata.mobile_number;
       }
     }
   }
@@ -293,7 +364,9 @@ function renderPlayerInfo() {
 
   const coins = isAdmin
     ? "Unlimited"
-    : Number(currentPlayer?.coins || 0).toLocaleString("en-US");
+    : Number(
+        currentPlayer?.coins || 0
+      ).toLocaleString("en-US");
 
   const playerId = currentUser.id;
 
@@ -305,7 +378,11 @@ function renderPlayerInfo() {
         <strong>${escapeHTML(playerId)}</strong>
         <p>Virtual Coins</p>
         <h2>${coins}</h2>
-        ${isBlocked ? "<p>Account inactive. Support is available.</p>" : ""}
+        ${
+          isBlocked
+            ? "<p>Account inactive. Support is available.</p>"
+            : ""
+        }
       </div>
     `;
   }
@@ -316,14 +393,24 @@ function renderPlayerInfo() {
         <h3>${escapeHTML(name)}</h3>
         <p>Player ID: ${escapeHTML(playerId)}</p>
         <p>Email: ${escapeHTML(currentUser.email)}</p>
-        <p>Mobile: ${escapeHTML(currentPlayer?.mobile_number || "Not set")}</p>
-        <p>Virtual Coins: ${coins}</p>
-        <p>Account Status: ${isAdmin ? "Admin" : isBlocked ? "Inactive" : "Active"}</p>
-        <p>Joined: ${escapeHTML(
-          currentPlayer?.created_at
-            ? new Date(currentPlayer.created_at).toLocaleDateString("en-GB")
-            : "-"
+        <p>Mobile: ${escapeHTML(
+          currentPlayer?.mobile_number || "Not set"
         )}</p>
+        <p>Virtual Coins: ${coins}</p>
+        <p>Account Status: ${
+          isAdmin
+            ? "Admin"
+            : isBlocked
+              ? "Inactive"
+              : "Active"
+        }</p>
+        <p>Joined: ${
+          currentPlayer?.created_at
+            ? new Date(
+                currentPlayer.created_at
+              ).toLocaleDateString("en-GB")
+            : "-"
+        }</p>
       </div>
     `;
   }
@@ -385,8 +472,12 @@ function renderPlayerInfo() {
 function showPage(pageName) {
   if (!currentUser) return;
 
-  // Blocked Player: শুধু Support ও Logout
-  if (!isAdmin && isBlocked && pageName !== "support") {
+  // Blocked Player: শুধু Support ব্যবহার করতে পারবে
+  if (
+    !isAdmin &&
+    isBlocked &&
+    pageName !== "support"
+  ) {
     pageName = "support";
   }
 
@@ -418,6 +509,9 @@ function showPage(pageName) {
   }
 }
 
+
+// PAGE BUTTONS
+
 document.querySelectorAll("[data-page]").forEach(button => {
   button.addEventListener("click", () => {
     showPage(button.dataset.page);
@@ -436,58 +530,85 @@ $("menuBtn")?.addEventListener("click", () => {
 
 function renderSupport() {
   const content = $("supportContent");
+
   if (!content) return;
 
   content.innerHTML = `
     <div class="premium-panel">
       <h3>Contact Admin</h3>
-      ${isBlocked ? "<p>Your account is inactive. You can still contact Support.</p>" : ""}
+
+      ${
+        isBlocked
+          ? "<p>Your account is inactive. You can still contact Support.</p>"
+          : ""
+      }
+
       <form id="supportForm">
+
         <label>Subject</label>
-        <input id="supportSubject" type="text"
-          minlength="2" maxlength="100"
-          placeholder="সমস্যার বিষয় লিখুন" required>
+
+        <input
+          id="supportSubject"
+          type="text"
+          minlength="2"
+          maxlength="100"
+          placeholder="সমস্যার বিষয় লিখুন"
+          required
+        >
 
         <label>Message</label>
-        <textarea id="supportMessage" minlength="5"
+
+        <textarea
+          id="supportMessage"
+          minlength="5"
           maxlength="3000"
-          placeholder="আপনার সমস্যাটি লিখুন" required></textarea>
+          placeholder="আপনার সমস্যাটি লিখুন"
+          required
+        ></textarea>
 
         <button class="royal-button" type="submit">
           SEND MESSAGE
         </button>
+
       </form>
+
       <div id="supportResult" aria-live="polite"></div>
     </div>
   `;
 
-  $("supportForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  $("supportForm")?.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
 
-    const subject = $("supportSubject").value.trim();
-    const message = $("supportMessage").value.trim();
-    const result = $("supportResult");
+      const subject = $("supportSubject").value.trim();
+      const message = $("supportMessage").value.trim();
+      const result = $("supportResult");
 
-    result.textContent = "Sending...";
+      result.textContent = "Sending...";
 
-    try {
-      const { error } = await supabaseClient.rpc(
-        "submit_support_message",
-        {
-          p_subject: subject,
-          p_message: message
-        }
-      );
+      try {
+        const { error } = await supabaseClient.rpc(
+          "submit_support_message",
+          {
+            p_subject: subject,
+            p_message: message
+          }
+        );
 
-      if (error) throw error;
+        if (error) throw error;
 
-      result.textContent = "আপনার Message Admin-এর কাছে পাঠানো হয়েছে।";
-      $("supportForm").reset();
+        result.textContent =
+          "আপনার Message Admin-এর কাছে পাঠানো হয়েছে।";
 
-    } catch (error) {
-      result.textContent = "Message পাঠানো যায়নি: " + error.message;
+        $("supportForm").reset();
+
+      } catch (error) {
+        result.textContent =
+          "Message পাঠানো যায়নি: " + error.message;
+      }
     }
-  });
+  );
 }
 
 
@@ -496,6 +617,7 @@ function renderSupport() {
 // =========================================
 
 $("logoutBtn")?.addEventListener("click", async () => {
+
   const { error } = await supabaseClient.auth.signOut();
 
   if (error) {
@@ -521,7 +643,8 @@ $("logoutBtn")?.addEventListener("click", async () => {
 
 async function initializeApp() {
   try {
-    const { data, error } = await supabaseClient.auth.getSession();
+    const { data, error } =
+      await supabaseClient.auth.getSession();
 
     if (error) throw error;
 
@@ -530,30 +653,46 @@ async function initializeApp() {
     } else {
       $("authSection").hidden = false;
       $("appSection").hidden = true;
+
       showAuthForm("loginForm");
     }
 
   } catch (error) {
     console.error("Initialization error:", error);
-    showMessage("App চালু করা যায়নি: " + error.message, "error");
+
+    showMessage(
+      "App চালু করা যায়নি: " + error.message,
+      "error"
+    );
   }
 }
 
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if (event === "SIGNED_OUT") {
-    currentUser = null;
-    currentPlayer = null;
-    isAdmin = false;
-    isBlocked = false;
 
-    $("appSection").hidden = true;
-    $("authSection").hidden = false;
-    showAuthForm("loginForm");
+// AUTH STATE LISTENER
+
+supabaseClient.auth.onAuthStateChange(
+  (event, session) => {
+
+    if (event === "SIGNED_OUT") {
+      currentUser = null;
+      currentPlayer = null;
+      isAdmin = false;
+      isBlocked = false;
+
+      $("appSection").hidden = true;
+      $("authSection").hidden = false;
+
+      showAuthForm("loginForm");
+    }
+
+    if (event === "PASSWORD_RECOVERY") {
+      alert(
+        "Password recovery session চালু হয়েছে। নতুন Password সেট করার ব্যবস্থা পরের ধাপে যুক্ত করব।"
+      );
+    }
   }
+);
 
-  if (event === "PASSWORD_RECOVERY") {
-    alert("Password recovery session চালু হয়েছে। নতুন Password সেট করার ব্যবস্থা পরের ধাপে যুক্ত করব।");
-  }
-});
 
+// START APP
 initializeApp();
