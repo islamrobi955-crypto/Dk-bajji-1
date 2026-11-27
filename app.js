@@ -1,127 +1,41 @@
 /* =========================================
-   BIKASH12 BAJI - APP.JS
+   BIKASH12 BAJI
+   Royal Neon Premium Edition
+   Supabase Authentication
 ========================================= */
 
-const STORAGE = {
-  user: "bikash12_user",
-  balance: "bikash12_balance",
-  requests: "bikash12_requests",
-  history: "bikash12_history",
-  numbers: "bikash12_numbers",
-  tickets: "bikash12_tickets"
-};
+// SUPABASE CONNECTION
+const SUPABASE_URL = "https://yfvntswzolcagfauxons.supabase.co";
+const SUPABASE_KEY = "sb_publishable_TPjwrOvBZBPffBbfGg2g_A_Zws001w";
 
-function readData(key, fallback) {
-  try {
-    const value = localStorage.getItem(key);
-    return value === null ? fallback : JSON.parse(value);
-  } catch {
-    return fallback;
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+// AUTHORIZED ADMIN
+const ADMIN_UID = "1470dafc-ecc1-49b7-afc3-6b9662f00015";
+
+// APP STATE
+let currentUser = null;
+let currentPlayer = null;
+let isAdmin = false;
+let isBlocked = false;
+
+
+// =========================================
+// ELEMENT HELPERS
+// =========================================
+
+const $ = (id) => document.getElementById(id);
+
+function showMessage(message, type = "info") {
+  const el = $("authMessage");
+
+  if (el) {
+    el.textContent = message;
+    el.className = "auth-message " + type;
   }
-}
-
-function saveData(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
-
-let currentUser = readData(STORAGE.user, null);
-let virtualBalance = Number(readData(STORAGE.balance, 0)) || 0;
-let requests = readData(STORAGE.requests, []);
-let history = readData(STORAGE.history, []);
-let supportTickets = readData(STORAGE.tickets, []);
-let virtualNumbers = readData(STORAGE.numbers, {
-  a: "",
-  b: ""
-});
-
-let selectedPayment = "Virtual Credit A";
-
-const providers = [
-  {
-    name: "PG",
-    games: ["Fortune Tiger", "Fortune Rabbit", "Fortune Ox", "Fortune Mouse"]
-  },
-  {
-    name: "JILI",
-    games: ["Super Ace", "Lucky Star", "Fortune Gems", "Dragon Treasure", "Golden Empire"]
-  },
-  {
-    name: "Pragmatic Play",
-    games: ["Gates of Olympus", "Sweet Bonanza", "Big Bass Bonanza"]
-  },
-  {
-    name: "CQ9",
-    games: ["Jump High", "Thor 2", "Lucky Bats"]
-  },
-  {
-    name: "Habanero",
-    games: ["Hot Hot Fruit", "Koi Gate", "Fa Cai Shen"]
-  },
-  {
-    name: "Evolution",
-    games: ["Live Casino", "Blackjack", "Roulette"]
-  },
-  {
-    name: "Microgaming",
-    games: ["Mega Moolah", "Immortal Romance"]
-  },
-  {
-    name: "Playtech",
-    games: ["Age of the Gods", "Buffalo Blitz"]
-  },
-  {
-    name: "NetEnt",
-    games: ["Starburst", "Gonzo's Quest"]
-  },
-  {
-    name: "Play'n GO",
-    games: ["Book of Dead", "Reactoonz"]
-  },
-  {
-    name: "Spadegaming",
-    games: ["Heroes", "Golden Queen"]
-  },
-  {
-    name: "KA Gaming",
-    games: ["Dragon's Gate", "Lucky God"]
-  }
-];
-
-/* BASIC HELPERS */
-
-function getElement(id) {
-  return document.getElementById(id);
-}
-
-function getValue(id) {
-  return getElement(id)?.value?.trim() || "";
-}
-
-function setText(id, value) {
-  const el = getElement(id);
-  if (el) el.textContent = value;
-}
-
-function money(value) {
-  return "৳ " + Number(value || 0).toLocaleString("en-US");
-}
-
-function makeId(prefix = "B12") {
-  return prefix + Date.now().toString().slice(-8) +
-    Math.floor(Math.random() * 900 + 100);
-}
-
-function showMessage(message) {
-  alert(message);
-}
-
-function saveAll() {
-  saveData(STORAGE.user, currentUser);
-  saveData(STORAGE.balance, virtualBalance);
-  saveData(STORAGE.requests, requests);
-  saveData(STORAGE.history, history);
-  saveData(STORAGE.numbers, virtualNumbers);
-  saveData(STORAGE.tickets, supportTickets);
 }
 
 function escapeHTML(value) {
@@ -134,506 +48,512 @@ function escapeHTML(value) {
   })[char]);
 }
 
-function addHistory(type, amount, details = "") {
-  history.unshift({
-    id: makeId("TX"),
-    type,
-    amount: Number(amount) || 0,
-    details,
-    date: new Date().toLocaleString("bn-BD"),
-    status: "Pending"
+function showAuthForm(formName) {
+  ["loginForm", "registerForm", "resetForm"].forEach(id => {
+    const form = $(id);
+    if (form) form.hidden = id !== formName;
   });
-  saveAll();
+
+  $("loginTab")?.classList.toggle("active", formName === "loginForm");
+  $("registerTab")?.classList.toggle("active", formName === "registerForm");
+
+  showMessage("");
 }
 
-/* NAVIGATION */
 
-function hideAllPages() {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.add("hidden");
-  });
-}
+// =========================================
+// AUTH TABS
+// =========================================
 
-function showPage(pageId) {
-  if (pageId === "jili") pageId = "pg";
+$("loginTab")?.addEventListener("click", () => {
+  showAuthForm("loginForm");
+});
 
-  hideAllPages();
+$("registerTab")?.addEventListener("click", () => {
+  showAuthForm("registerForm");
+});
 
-  const page = getElement(pageId);
-  if (page) page.classList.remove("hidden");
+$("forgotPasswordBtn")?.addEventListener("click", () => {
+  showAuthForm("resetForm");
+});
 
-  const menu = getElement("sideMenu");
-  if (menu) menu.classList.add("hidden");
+$("backToLogin")?.addEventListener("click", () => {
+  showAuthForm("loginForm");
+});
 
-  updateBalance();
-  updateProfile();
 
-  if (pageId === "pg") renderProviderCatalog();
-  if (pageId === "admin") {
-    updateNumbersDisplay();
-    renderAdminRequests();
+// =========================================
+// REGISTRATION
+// =========================================
+
+$("registerForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const name = $("registerName").value.trim();
+  const mobile = $("registerMobile").value.trim();
+  const email = $("registerEmail").value.trim();
+  const password = $("registerPassword").value;
+  const confirmPassword = $("confirmPassword").value;
+
+  if (name.length < 2) {
+    return showMessage("সঠিক Player Name লিখুন।", "error");
   }
-  if (pageId === "withdraw") updateWithdrawalNumber();
-  if (pageId === "wallet") renderWalletTransactions();
-  if (pageId === "history" || pageId === "transactions") renderHistory();
-  if (pageId === "vip") updateVIP();
+
+  if (!/^01[3-9]\d{8}$/.test(mobile)) {
+    return showMessage("সঠিক ১১ সংখ্যার বাংলাদেশি Mobile Number দিন।", "error");
+  }
+
+  if (password.length < 6) {
+    return showMessage("Password কমপক্ষে ৬ অক্ষরের হতে হবে।", "error");
+  }
+
+  if (password !== confirmPassword) {
+    return showMessage("দুটি Password মিলছে না।", "error");
+  }
+
+  const button = $("registerForm").querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "PLEASE WAIT...";
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: name,
+          mobile_number: mobile
+        }
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      showMessage(
+        "Account তৈরি হয়েছে। আপনার Account চালু হচ্ছে...",
+        "success"
+      );
+      await loadApplication(data.user);
+    } else {
+      showMessage(
+        "Registration সফল! Email-এ Verification Link পাঠানো হয়েছে। Email Verify করে Login করুন।",
+        "success"
+      );
+      $("registerForm").reset();
+      showAuthForm("loginForm");
+    }
+
+  } catch (error) {
+    showMessage(error.message || "Registration করা যায়নি।", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "CREATE ACCOUNT";
+  }
+});
+
+
+// =========================================
+// LOGIN
+// =========================================
+
+$("loginForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+
+  const button = $("loginForm").querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "LOGGING IN...";
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    await loadApplication(data.user);
+
+  } catch (error) {
+    showMessage(error.message || "Login করা যায়নি।", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "LOGIN NOW";
+  }
+});
+
+
+// =========================================
+// FORGOT PASSWORD
+// =========================================
+
+$("resetForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const email = $("resetEmail").value.trim();
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo: window.location.origin +
+          window.location.pathname
+      }
+    );
+
+    if (error) throw error;
+
+    showMessage(
+      "Password Reset Link আপনার Email-এ পাঠানো হয়েছে।",
+      "success"
+    );
+
+  } catch (error) {
+    showMessage(error.message || "Reset Link পাঠানো যায়নি।", "error");
+  }
+});
+
+
+// =========================================
+// LOAD PLAYER / ADMIN
+// =========================================
+
+async function loadApplication(user) {
+  if (!user) return;
+
+  currentUser = user;
+  isAdmin = user.id === ADMIN_UID;
+  currentPlayer = null;
+  isBlocked = false;
+
+  if (!isAdmin) {
+    const { data, error } = await supabaseClient
+      .from("players")
+      .select("user_id,display_name,coins,mobile_number,is_active,created_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Player load error:", error);
+      showMessage("Player তথ্য লোড করা যায়নি: " + error.message, "error");
+      return;
+    }
+
+    if (!data) {
+      showMessage("Player Account পাওয়া যায়নি। Admin-এর সঙ্গে যোগাযোগ করুন।", "error");
+      return;
+    }
+
+    currentPlayer = data;
+    isBlocked = data.is_active === false;
+
+    // Registration-এর Mobile Number metadata থেকে সেট করার চেষ্টা
+    if (!data.mobile_number && user.user_metadata?.mobile_number && !isBlocked) {
+      const { error: mobileError } = await supabaseClient.rpc(
+        "set_player_mobile_number",
+        {
+          p_mobile_number: user.user_metadata.mobile_number
+        }
+      );
+
+      if (!mobileError) {
+        currentPlayer.mobile_number = user.user_metadata.mobile_number;
+      }
+    }
+  }
+
+  $("authSection").hidden = true;
+  $("appSection").hidden = false;
+
+  $("adminMenuBtn").hidden = !isAdmin;
+
+  renderPlayerInfo();
+
+  if (isBlocked) {
+    showPage("support");
+  } else {
+    showPage("home");
+  }
 }
 
-function toggleMenu() {
-  getElement("sideMenu")?.classList.toggle("hidden");
+
+// =========================================
+// PLAYER INFORMATION
+// =========================================
+
+function renderPlayerInfo() {
+  if (!currentUser) return;
+
+  const name = isAdmin
+    ? "Administrator"
+    : currentPlayer?.display_name || "Player";
+
+  const coins = isAdmin
+    ? "Unlimited"
+    : Number(currentPlayer?.coins || 0).toLocaleString("en-US");
+
+  const playerId = currentUser.id;
+
+  if ($("homePlayerInfo")) {
+    $("homePlayerInfo").innerHTML = `
+      <div class="premium-panel">
+        <h3>Welcome, ${escapeHTML(name)}</h3>
+        <p>Player ID</p>
+        <strong>${escapeHTML(playerId)}</strong>
+        <p>Virtual Coins</p>
+        <h2>${coins}</h2>
+        ${isBlocked ? "<p>Account inactive. Support is available.</p>" : ""}
+      </div>
+    `;
+  }
+
+  if ($("profileContent")) {
+    $("profileContent").innerHTML = `
+      <div class="premium-panel">
+        <h3>${escapeHTML(name)}</h3>
+        <p>Player ID: ${escapeHTML(playerId)}</p>
+        <p>Email: ${escapeHTML(currentUser.email)}</p>
+        <p>Mobile: ${escapeHTML(currentPlayer?.mobile_number || "Not set")}</p>
+        <p>Virtual Coins: ${coins}</p>
+        <p>Account Status: ${isAdmin ? "Admin" : isBlocked ? "Inactive" : "Active"}</p>
+        <p>Joined: ${escapeHTML(
+          currentPlayer?.created_at
+            ? new Date(currentPlayer.created_at).toLocaleDateString("en-GB")
+            : "-"
+        )}</p>
+      </div>
+    `;
+  }
+
+  if ($("walletContent")) {
+    $("walletContent").innerHTML = `
+      <div class="premium-panel">
+        <h3>Virtual Wallet</h3>
+        <h2>${coins} Coins</h2>
+        <p>Wallet balance is managed by the secure system.</p>
+        <p>Deposit and Withdrawal features will be connected in the next steps.</p>
+      </div>
+    `;
+  }
+
+  if ($("securityContent")) {
+    $("securityContent").innerHTML = `
+      <div class="premium-panel">
+        <h3>Security Center</h3>
+        <p>Transaction PIN settings will be connected in the next step.</p>
+        <p>Password পরিবর্তন করতে Forgot Password ব্যবহার করুন।</p>
+      </div>
+    `;
+  }
+
+  if ($("bonusContent")) {
+    $("bonusContent").innerHTML = `
+      <div class="premium-panel">
+        <h3>VIP & Bonus</h3>
+        <p>Bonus information will appear here.</p>
+      </div>
+    `;
+  }
+
+  if ($("historyContent")) {
+    $("historyContent").innerHTML = `
+      <div class="premium-panel">
+        <p>Transaction history will appear here.</p>
+      </div>
+    `;
+  }
+
+  if ($("aboutContent")) {
+    $("aboutContent").innerHTML = `
+      <div class="premium-panel">
+        <h3>BIKASH12 BAJI</h3>
+        <p>Royal Neon Premium Edition</p>
+        <p>Welcome to BIKASH12 BAJI.</p>
+      </div>
+    `;
+  }
 }
 
-/* PLAYER PROFILE */
 
-function playerLogin() {
-  const name = prompt("আপনার প্লেয়ার নাম লিখুন:");
-  if (!name || !name.trim()) return;
+// =========================================
+// PAGE NAVIGATION
+// =========================================
 
-  currentUser = {
-    name: name.trim(),
-    playerId: makeId("PLAYER")
-  };
+function showPage(pageName) {
+  if (!currentUser) return;
 
-  saveAll();
-  updateProfile();
-  updateBalance();
-  showMessage("স্বাগতম, " + currentUser.name);
+  // Blocked Player: শুধু Support ও Logout
+  if (!isAdmin && isBlocked && pageName !== "support") {
+    pageName = "support";
+  }
+
+  document.querySelectorAll(".app-page").forEach(page => {
+    page.hidden = true;
+  });
+
+  const target = $(pageName + "Page");
+
+  if (target) {
+    target.hidden = false;
+  }
+
+  if (pageName === "support") {
+    renderSupport();
+  }
+
+  if (pageName === "admin" && isAdmin) {
+    $("adminContent").innerHTML = `
+      <div class="premium-panel">
+        <h3>Admin Panel</h3>
+        <p>Admin controls will be connected in the next step.</p>
+      </div>
+    `;
+  }
+
+  if ($("sideMenu")) {
+    $("sideMenu").hidden = true;
+  }
 }
 
-function playerLogout() {
-  if (!confirm("আপনি কি লগআউট করতে চান?")) return;
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    showPage(button.dataset.page);
+  });
+});
+
+$("menuBtn")?.addEventListener("click", () => {
+  $("sideMenu").hidden = !$("sideMenu").hidden;
+});
+
+
+// =========================================
+// SUPPORT
+// Blocked Player can still contact Admin
+// =========================================
+
+function renderSupport() {
+  const content = $("supportContent");
+  if (!content) return;
+
+  content.innerHTML = `
+    <div class="premium-panel">
+      <h3>Contact Admin</h3>
+      ${isBlocked ? "<p>Your account is inactive. You can still contact Support.</p>" : ""}
+      <form id="supportForm">
+        <label>Subject</label>
+        <input id="supportSubject" type="text"
+          minlength="2" maxlength="100"
+          placeholder="সমস্যার বিষয় লিখুন" required>
+
+        <label>Message</label>
+        <textarea id="supportMessage" minlength="5"
+          maxlength="3000"
+          placeholder="আপনার সমস্যাটি লিখুন" required></textarea>
+
+        <button class="royal-button" type="submit">
+          SEND MESSAGE
+        </button>
+      </form>
+      <div id="supportResult" aria-live="polite"></div>
+    </div>
+  `;
+
+  $("supportForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const subject = $("supportSubject").value.trim();
+    const message = $("supportMessage").value.trim();
+    const result = $("supportResult");
+
+    result.textContent = "Sending...";
+
+    try {
+      const { error } = await supabaseClient.rpc(
+        "submit_support_message",
+        {
+          p_subject: subject,
+          p_message: message
+        }
+      );
+
+      if (error) throw error;
+
+      result.textContent = "আপনার Message Admin-এর কাছে পাঠানো হয়েছে।";
+      $("supportForm").reset();
+
+    } catch (error) {
+      result.textContent = "Message পাঠানো যায়নি: " + error.message;
+    }
+  });
+}
+
+
+// =========================================
+// LOGOUT
+// =========================================
+
+$("logoutBtn")?.addEventListener("click", async () => {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    alert("Logout করা যায়নি: " + error.message);
+    return;
+  }
 
   currentUser = null;
-  saveAll();
-  showPage("home");
-  showMessage("লগআউট সম্পন্ন হয়েছে।");
-}
+  currentPlayer = null;
+  isAdmin = false;
+  isBlocked = false;
 
-function updateProfile() {
-  setText("profileName", currentUser?.name || "Guest Player");
-  setText("playerId", currentUser?.playerId || "—");
-}
+  $("appSection").hidden = true;
+  $("authSection").hidden = false;
 
-function updateBalance() {
-  setText("topBalance", Number(virtualBalance).toLocaleString("en-US"));
-  setText("walletBalance", Number(virtualBalance).toLocaleString("en-US"));
-}
+  showAuthForm("loginForm");
+});
 
-/* GAME PROVIDERS */
 
-function renderProviderCatalog() {
-  const container = getElement("providerCatalog");
-  if (!container) return;
+// =========================================
+// AUTH SESSION RESTORE
+// =========================================
 
-  container.innerHTML = `
-    <div class="provider-grid">
-      ${providers.map((provider, index) => `
-        <button class="provider-card" onclick="openProvider(${index})">
-          <strong>${escapeHTML(provider.name)}</strong>
-          <small>${provider.games.length} Games</small>
-        </button>
-      `).join("")}
-    </div>
-  `;
-}
+async function initializeApp() {
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
 
-function openProvider(index) {
-  const provider = providers[index];
-  const container = getElement("providerCatalog");
-  if (!provider || !container) return;
+    if (error) throw error;
 
-  container.innerHTML = `
-    <div class="section-heading">
-      <h2>${escapeHTML(provider.name)}</h2>
-      <button onclick="renderProviderCatalog()">‹ ফিরে যান</button>
-    </div>
-    <div class="game-grid">
-      ${provider.games.map((game, i) => `
-        <button class="game-card" onclick="openGame('${escapeHTML(game).replace(/'/g, "\\'")}')">
-          <span class="game-art art-${["one","two","three","four","five","six"][i % 6]}">🎮</span>
-          <strong>${escapeHTML(game)}</strong>
-          <small>${escapeHTML(provider.name)}</small>
-        </button>
-      `).join("")}
-    </div>
-  `;
-}
-
-function filterGames(category, button) {
-  document.querySelectorAll(".category-tabs button").forEach(btn => {
-    btn.classList.remove("active");
-  });
-  button?.classList.add("active");
-
-  document.querySelectorAll(".game-grid .game-card").forEach(card => {
-    card.style.display =
-      category === "all" || card.dataset.category === category
-        ? ""
-        : "none";
-  });
-}
-
-function openGame(gameName) {
-  setText("selectedGame", gameName);
-  showPage("gameView");
-}
-
-/* VIRTUAL NUMBER SETTINGS */
-
-function updateNumbers() {
-  const numberA = getValue("newBkash");
-  const numberB = getValue("newNagad");
-
-  virtualNumbers = {
-    a: numberA,
-    b: numberB
-  };
-
-  saveAll();
-  updateNumbersDisplay();
-  updateWithdrawalNumber();
-
-  showMessage("ভার্চুয়াল নম্বর সংরক্ষণ হয়েছে।");
-}
-
-function updateNumbersDisplay() {
-  const inputA = getElement("newBkash");
-  const inputB = getElement("newNagad");
-
-  if (inputA) inputA.value = virtualNumbers.a || "";
-  if (inputB) inputB.value = virtualNumbers.b || "";
-
-  const status = getElement("numberSettingsStatus");
-  if (status) {
-    status.textContent = "নম্বর সেটিংস সংরক্ষিত";
-  }
-}
-
-function updateWithdrawalNumber() {
-  const display = getElement("withdrawVirtualNumber");
-  const type = getElement("withdrawNumberType");
-
-  if (!display) return;
-
-  const available = [];
-
-  if (virtualNumbers.a) {
-    available.push("A: " + virtualNumbers.a);
-  }
-  if (virtualNumbers.b) {
-    available.push("B: " + virtualNumbers.b);
-  }
-
-  display.textContent = available.length
-    ? available.join("  |  ")
-    : "অ্যাডমিন এখনো নম্বর যোগ করেনি";
-
-  if (type) type.textContent = "অ্যাডমিন নির্ধারিত ভার্চুয়াল নম্বর";
-}
-
-/* DEPOSIT METHOD */
-
-function selectPayment(method, button) {
-  selectedPayment = method;
-
-  document.querySelectorAll(".payment-methods button").forEach(btn => {
-    btn.classList.remove("active");
-  });
-
-  button?.classList.add("active");
-
-  const number = method === "Virtual Credit A"
-    ? virtualNumbers.a
-    : virtualNumbers.b;
-
-  setText(
-    "paymentNumber",
-    number || "অ্যাডমিন নম্বর যোগ করেনি"
-  );
-  setText("paymentType", method);
-}
-
-/* REQUEST CREATION */
-
-function sendRequest(type) {
-  if (!currentUser) {
-    playerLogin();
-    if (!currentUser) return;
-  }
-
-  let amount = 0;
-  let details = {};
-
-  if (type === "Deposit") {
-    amount = Number(getValue("depositAmount"));
-    details.method = selectedPayment;
-    details.referenceId = getValue("depositRef");
-
-    if (!amount || amount < 1) {
-      showMessage("সঠিক পরিমাণ লিখুন।");
-      return;
-    }
-  }
-
-  if (type === "Send Money") {
-    amount = Number(getValue("sendAmount"));
-    details.receiver = getValue("receiver");
-
-    if (!details.receiver) {
-      showMessage("প্রাপকের Player ID লিখুন।");
-      return;
-    }
-    if (!amount || amount < 1) {
-      showMessage("সঠিক পরিমাণ লিখুন।");
-      return;
-    }
-    if (amount > virtualBalance) {
-      showMessage("আপনার ব্যালেন্স পর্যাপ্ত নয়।");
-      return;
-    }
-  }
-
-  if (type === "Withdrawal") {
-    amount = Number(getValue("withdrawAmount"));
-    details.playerNumber = getValue("withdrawNumber");
-    details.transactionId = getValue("withdrawTransactionId");
-
-    if (!details.playerNumber) {
-      showMessage("আপনার নম্বর লিখুন।");
-      return;
-    }
-    if (!details.transactionId) {
-      showMessage("Transaction ID লিখুন।");
-      return;
-    }
-    if (!amount || amount < 1) {
-      showMessage("সঠিক পরিমাণ লিখুন।");
-      return;
-    }
-    if (amount > virtualBalance) {
-      showMessage("আপনার ভার্চুয়াল ব্যালেন্স পর্যাপ্ত নয়।");
-      return;
-    }
-  }
-
-  const request = {
-    id: makeId("REQ"),
-    playerName: currentUser.name,
-    playerId: currentUser.playerId,
-    type,
-    amount,
-    details,
-    status: "Pending",
-    date: new Date().toLocaleString("bn-BD")
-  };
-
-  requests.unshift(request);
-  addHistory(type, amount, "Request ID: " + request.id);
-  saveAll();
-
-  if (type === "Deposit") {
-    getElement("depositAmount").value = "";
-    getElement("depositRef").value = "";
-  }
-
-  if (type === "Send Money") {
-    getElement("sendAmount").value = "";
-    getElement("receiver").value = "";
-  }
-
-  if (type === "Withdrawal") {
-    getElement("withdrawAmount").value = "";
-    getElement("withdrawNumber").value = "";
-    getElement("withdrawTransactionId").value = "";
-  }
-
-  updateBalance();
-  renderAdminRequests();
-
-  showMessage("আপনার রিকুয়েস্ট পাঠানো হয়েছে।");
-}
-
-/* ADMIN REQUEST MANAGEMENT */
-
-function renderAdminRequests() {
-  const container = getElement("adminRequests");
-  if (!container) return;
-
-  const pending = requests.filter(r => r.status === "Pending").length;
-  const approved = requests.filter(r => r.status === "Approved").length;
-
-  setText("pendingCount", pending);
-  setText("approvedCount", approved);
-
-  if (!requests.length) {
-    container.innerHTML = "কোনো রিকুয়েস্ট নেই।";
-    return;
-  }
-
-  container.innerHTML = requests.map(request => `
-    <div class="card request-card">
-      <h3>${escapeHTML(request.type)}</h3>
-      <p>Player: ${escapeHTML(request.playerName)}</p>
-      <p>Player ID: ${escapeHTML(request.playerId)}</p>
-      <p>পরিমাণ: ${money(request.amount)}</p>
-      <p>তারিখ: ${escapeHTML(request.date)}</p>
-
-      ${request.details?.receiver
-        ? `<p>প্রাপক: ${escapeHTML(request.details.receiver)}</p>` : ""}
-
-      ${request.details?.method
-        ? `<p>পদ্ধতি: ${escapeHTML(request.details.method)}</p>` : ""}
-
-      ${request.details?.playerNumber
-        ? `<p>প্লেয়ার নম্বর: ${escapeHTML(request.details.playerNumber)}</p>` : ""}
-
-      ${request.details?.transactionId
-        ? `<p>Transaction ID: ${escapeHTML(request.details.transactionId)}</p>` : ""}
-
-      ${request.details?.referenceId
-        ? `<p>Reference ID: ${escapeHTML(request.details.referenceId)}</p>` : ""}
-
-      <p>স্ট্যাটাস: <strong>${escapeHTML(request.status)}</strong></p>
-
-      ${request.status === "Pending" ? `
-        <button class="gold-button" onclick="updateRequest('${request.id}','Approved')">
-          অনুমোদন
-        </button>
-        <button onclick="updateRequest('${request.id}','Rejected')">
-          বাতিল
-        </button>
-      ` : ""}
-    </div>
-  `).join("");
-}
-
-function updateRequest(requestId, newStatus) {
-  const request = requests.find(r => r.id === requestId);
-  if (!request || request.status !== "Pending") return;
-
-  if (newStatus !== "Approved" && newStatus !== "Rejected") return;
-
-  if (newStatus === "Approved") {
-    if (request.type === "Deposit") {
-      virtualBalance += Number(request.amount);
+    if (data.session?.user) {
+      await loadApplication(data.session.user);
+    } else {
+      $("authSection").hidden = false;
+      $("appSection").hidden = true;
+      showAuthForm("loginForm");
     }
 
-    if (request.type === "Withdrawal" || request.type === "Send Money") {
-      if (Number(request.amount) > virtualBalance) {
-        showMessage("বর্তমান ভার্চুয়াল ব্যালেন্স পর্যাপ্ত নয়।");
-        return;
-      }
-      virtualBalance -= Number(request.amount);
-    }
-  }
-
-  request.status = newStatus;
-  request.updatedAt = new Date().toLocaleString("bn-BD");
-
-  const historyItem = history.find(
-    item => item.details === "Request ID: " + request.id
-  );
-
-  if (historyItem) historyItem.status = newStatus;
-
-  saveAll();
-  updateBalance();
-  renderAdminRequests();
-  renderHistory();
-
-  showMessage(
-    newStatus === "Approved"
-      ? "রিকুয়েস্ট অনুমোদন হয়েছে।"
-      : "রিকুয়েস্ট বাতিল হয়েছে।"
-  );
-}
-
-/* TRANSACTION AND GAME HISTORY */
-
-function renderHistory() {
-  const transactionHTML = history.length
-    ? history.map(item => `
-        <div class="history-item">
-          <strong>${escapeHTML(item.type)}</strong>
-          <p>${money(item.amount)}</p>
-          <small>${escapeHTML(item.date)}</small>
-          <p>স্ট্যাটাস: ${escapeHTML(item.status)}</p>
-        </div>
-      `).join("")
-    : "কোনো লেনদেন নেই।";
-
-  const transactionContainer = getElement("transactionHistory");
-  const walletContainer = getElement("walletRecentTransactions");
-
-  if (transactionContainer) {
-    transactionContainer.innerHTML = transactionHTML;
-  }
-  if (walletContainer) {
-    walletContainer.innerHTML = transactionHTML;
-  }
-
-  const gameContainer = getElement("gameHistory");
-  if (gameContainer) {
-    gameContainer.innerHTML = "এখনো কোনো গেম ইতিহাস নেই।";
+  } catch (error) {
+    console.error("Initialization error:", error);
+    showMessage("App চালু করা যায়নি: " + error.message, "error");
   }
 }
 
-function renderWalletTransactions() {
-  renderHistory();
-}
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT") {
+    currentUser = null;
+    currentPlayer = null;
+    isAdmin = false;
+    isBlocked = false;
 
-/* VIP */
-
-function updateVIP() {
-  const progress = getElement("vipProgress");
-  if (progress) progress.style.width = "25%";
-}
-
-/* SUPPORT */
-
-function sendSupport() {
-  if (!currentUser) {
-    playerLogin();
-    if (!currentUser) return;
+    $("appSection").hidden = true;
+    $("authSection").hidden = false;
+    showAuthForm("loginForm");
   }
 
-  const subject = getValue("supportSubject");
-  const message = getValue("supportMessage");
-
-  if (!subject || !message) {
-    showMessage("বিষয় ও মেসেজ লিখুন।");
-    return;
+  if (event === "PASSWORD_RECOVERY") {
+    alert("Password recovery session চালু হয়েছে। নতুন Password সেট করার ব্যবস্থা পরের ধাপে যুক্ত করব।");
   }
+});
 
-  supportTickets.unshift({
-    id: makeId("SUP"),
-    playerId: currentUser.playerId,
-    subject,
-    message,
-    date: new Date().toLocaleString("bn-BD")
-  });
-
-  saveAll();
-
-  getElement("supportSubject").value = "";
-  getElement("supportMessage").value = "";
-
-  showMessage("আপনার Support Ticket পাঠানো হয়েছে।");
-}
-
-/* INITIALIZE */
-
-function initializeApp() {
-  updateBalance();
-  updateProfile();
-  renderProviderCatalog();
-  renderHistory();
-  updateNumbersDisplay();
-  updateWithdrawalNumber();
-  renderAdminRequests();
-  updateVIP();
-
-  showPage("home");
-}
-
-document.addEventListener("DOMContentLoaded", initializeApp);
+initializeApp();
