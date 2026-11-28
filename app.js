@@ -2,9 +2,13 @@
    BIKASH12 BAJI
    ROYAL NEON PREMIUM EDITION
    AUTH + PROFILE + WALLET + SECURITY + HISTORY
+   ADMIN PAYMENT NUMBER MANAGEMENT
 ================================================== */
 
+// ==================================================
 // SUPABASE CONNECTION
+// ==================================================
+
 const SUPABASE_URL = "https://yfvntswzolcagfauxons.supabase.co";
 const SUPABASE_KEY = "sb_publishable_TPjwrOvBZBPffBbfGg2g_A_Zws001wL";
 
@@ -12,6 +16,7 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
 // ONLY AUTHORIZED ADMIN
 const ADMIN_UID = "1470dafc-ecc1-49b7-afc3-6b9662f00015";
 
@@ -21,6 +26,11 @@ let currentPlayer = null;
 let isAdmin = false;
 let isBlocked = false;
 let isEditingProfile = false;
+
+
+// ==================================================
+// COMMON HELPERS
+// ==================================================
 
 const $ = id => document.getElementById(id);
 
@@ -40,6 +50,7 @@ function money(value) {
 
 function formatDate(value) {
   if (!value) return "-";
+
   return new Date(value).toLocaleString("en-GB", {
     dateStyle: "medium",
     timeStyle: "short"
@@ -49,6 +60,7 @@ function formatDate(value) {
 function showMessage(message, type = "info") {
   const el = $("authMessage");
   if (!el) return;
+
   el.textContent = message;
   el.className = "auth-message " + type;
 }
@@ -56,6 +68,7 @@ function showMessage(message, type = "info") {
 function showResult(id, message, type = "info") {
   const el = $(id);
   if (!el) return;
+
   el.textContent = message;
   el.style.color =
     type === "error" ? "#ff7777" :
@@ -64,6 +77,7 @@ function showResult(id, message, type = "info") {
 
 function setButtonLoading(button, loading, loadingText, normalText) {
   if (!button) return;
+
   button.disabled = loading;
   button.textContent = loading ? loadingText : normalText;
 }
@@ -81,6 +95,7 @@ function statusText(status) {
     rejected: "Rejected",
     cancelled: "Cancelled"
   };
+
   const key = String(status || "").toLowerCase();
   return labels[key] || escapeHTML(status || "Unknown");
 }
@@ -92,6 +107,7 @@ function showAuthForm(formName) {
 
   $("loginTab")?.classList.toggle("active", formName === "loginForm");
   $("registerTab")?.classList.toggle("active", formName === "registerForm");
+
   showMessage("");
 }
 
@@ -136,6 +152,7 @@ $("registerForm")?.addEventListener("submit", async event => {
   }
 
   const button = $("registerForm").querySelector('[type="submit"]');
+
   setButtonLoading(button, true, "PLEASE WAIT...", "CREATE ACCOUNT");
 
   try {
@@ -158,11 +175,13 @@ $("registerForm")?.addEventListener("submit", async event => {
     } else {
       $("registerForm").reset();
       showAuthForm("loginForm");
+
       showMessage(
         "Registration সফল! Email Verification Link পাঠানো হয়েছে। Email Verify করে Login করুন।",
         "success"
       );
     }
+
   } catch (error) {
     showMessage(error.message || "Registration করা যায়নি।", "error");
   } finally {
@@ -191,7 +210,9 @@ $("loginForm")?.addEventListener("submit", async event => {
     });
 
     if (error) throw error;
+
     await loadApplication(data.user);
+
   } catch (error) {
     showMessage(error.message || "Login করা যায়নি।", "error");
   } finally {
@@ -223,6 +244,7 @@ $("resetForm")?.addEventListener("submit", async event => {
     if (error) throw error;
 
     showMessage("Password Reset Link আপনার Email-এ পাঠানো হয়েছে।", "success");
+
   } catch (error) {
     showMessage(error.message || "Reset Link পাঠানো যায়নি।", "error");
   } finally {
@@ -282,6 +304,7 @@ async function loadApplication(user) {
   if ($("adminMenuBtn")) $("adminMenuBtn").hidden = !isAdmin;
 
   renderPlayerInfo();
+
   showPage(isBlocked ? "support" : "home");
 }
 
@@ -301,15 +324,17 @@ async function copyPlayerId() {
     area.value = currentUser.id;
     document.body.appendChild(area);
     area.select();
+
     const copied = document.execCommand("copy");
     area.remove();
+
     alert(copied ? "Player ID Copy হয়েছে!" : "Copy করা যায়নি।");
   }
 }
 
 
 // ==================================================
-// PROFILE
+// PROFILE EDIT
 // ==================================================
 
 function renderProfileEditForm() {
@@ -324,16 +349,19 @@ function renderProfileEditForm() {
 
       <form id="editProfileForm">
         <label>Player Name</label>
-        <input id="editPlayerName" type="text" minlength="2" maxlength="40"
+        <input id="editPlayerName" type="text"
+          minlength="2" maxlength="40"
           value="${escapeHTML(currentPlayer.display_name || "")}" required>
 
         <label>Mobile Number</label>
-        <input id="editPlayerMobile" type="tel" inputmode="numeric"
-          maxlength="11" pattern="01[3-9][0-9]{8}"
+        <input id="editPlayerMobile" type="tel"
+          inputmode="numeric" maxlength="11"
+          pattern="01[3-9][0-9]{8}"
           value="${escapeHTML(currentPlayer.mobile_number || "")}" required>
 
         <button class="royal-button" id="saveProfileBtn" type="submit">SAVE CHANGES</button>
         <button class="royal-button" id="cancelProfileBtn" type="button">CANCEL</button>
+
         <p id="profileEditResult" aria-live="polite"></p>
       </form>
     </div>
@@ -349,6 +377,7 @@ function renderProfileEditForm() {
 
 async function savePlayerProfile(event) {
   event.preventDefault();
+
   if (!currentUser || !currentPlayer || isBlocked) return;
 
   const name = $("editPlayerName").value.trim();
@@ -377,8 +406,10 @@ async function savePlayerProfile(event) {
     currentPlayer.display_name = name;
     currentPlayer.mobile_number = mobile;
     isEditingProfile = false;
+
     renderPlayerInfo();
     alert("আপনার Profile Update হয়েছে!");
+
   } catch (error) {
     showResult("profileEditResult", "Update করা যায়নি: " + error.message, "error");
     setButtonLoading(button, false, "SAVING...", "SAVE CHANGES");
@@ -393,8 +424,13 @@ async function savePlayerProfile(event) {
 function renderPlayerInfo() {
   if (!currentUser) return;
 
-  const name = isAdmin ? "Administrator" : currentPlayer?.display_name || "Player";
-  const coins = isAdmin ? "Unlimited" : money(currentPlayer?.coins || 0);
+  const name = isAdmin
+    ? "Administrator"
+    : currentPlayer?.display_name || "Player";
+
+  const coins = isAdmin
+    ? "Unlimited"
+    : money(currentPlayer?.coins || 0);
 
   if ($("homePlayerInfo")) {
     $("homePlayerInfo").innerHTML = `
@@ -427,14 +463,18 @@ function renderPlayerInfo() {
             border:3px solid #ffe49a;box-shadow:0 0 18px rgba(212,175,55,.65);">
             ${avatar}
           </div>
+
           <h2 style="color:#ffe49a;">${escapeHTML(name)}</h2>
+
           <div style="display:inline-block;padding:6px 15px;border:1px solid #d4af37;
             border-radius:20px;color:#ffe49a;">♛ ROYAL PLAYER</div>
         </div>
 
         <hr style="border-color:rgba(212,175,55,.3)">
+
         <p><strong>Player ID:</strong></p>
         <p style="font-size:12px;word-break:break-all;">${escapeHTML(currentUser.id)}</p>
+
         <button class="royal-button" id="copyPlayerIdBtn" type="button">COPY ID</button>
 
         <p><strong>Email:</strong> ${escapeHTML(currentUser.email || "-")}</p>
@@ -444,13 +484,15 @@ function renderPlayerInfo() {
         <p><strong>Joined:</strong> ${currentPlayer?.created_at ? new Date(currentPlayer.created_at).toLocaleDateString("en-GB") : "-"}</p>
 
         ${!isAdmin && !isBlocked ? `
-          <button class="royal-button" id="editProfileBtn" type="button" style="width:100%;margin-top:12px;">
+          <button class="royal-button" id="editProfileBtn"
+            type="button" style="width:100%;margin-top:12px;">
             ✎ EDIT PROFILE
           </button>` : ""}
       </div>
     `;
 
     $("copyPlayerIdBtn")?.addEventListener("click", copyPlayerId);
+
     $("editProfileBtn")?.addEventListener("click", () => {
       isEditingProfile = true;
       renderPlayerInfo();
@@ -506,17 +548,279 @@ function renderPlayerInfo() {
 
 
 // ==================================================
-// WALLET PAGE — ROYAL BIKASH + NAGAD DESIGN
+// ADMIN PAYMENT NUMBER MANAGEMENT
+// ==================================================
+
+async function renderAdminPanel() {
+  if (!isAdmin || !currentUser || currentUser.id !== ADMIN_UID) return;
+
+  const content = $("adminContent");
+  if (!content) return;
+
+  content.innerHTML = `
+    <div class="premium-panel">
+      <h3>♛ ADMIN PANEL</h3>
+
+      <h3 style="color:#ffe49a;">PAYMENT NUMBER SETTINGS</h3>
+      <p>Player Wallet-এর জন্য বিকাশ ও নগদ নম্বর আলাদাভাবে নিয়ন্ত্রণ করুন।</p>
+
+      <div style="border:1px solid rgba(212,175,55,.4);border-radius:12px;padding:14px;margin:15px 0;">
+        <h3 style="color:#ff8ab5;">বিকাশ (bKash)</h3>
+
+        <label>বিকাশ নম্বর</label>
+        <input id="adminBkashNumber" type="tel"
+          inputmode="tel" maxlength="14"
+          placeholder="01XXXXXXXXX">
+
+        <button class="royal-button" id="saveBkashBtn" type="button">
+          SAVE / CHANGE BKASH
+        </button>
+
+        <button class="royal-button" id="deleteBkashBtn" type="button"
+          style="background:#6e2020;">
+          DELETE BKASH NUMBER
+        </button>
+
+        <p id="bkashAdminResult" aria-live="polite"></p>
+      </div>
+
+      <div style="border:1px solid rgba(212,175,55,.4);border-radius:12px;padding:14px;margin:15px 0;">
+        <h3 style="color:#ff9c55;">নগদ (Nagad)</h3>
+
+        <label>নগদ নম্বর</label>
+        <input id="adminNagadNumber" type="tel"
+          inputmode="tel" maxlength="14"
+          placeholder="01XXXXXXXXX">
+
+        <button class="royal-button" id="saveNagadBtn" type="button">
+          SAVE / CHANGE NAGAD
+        </button>
+
+        <button class="royal-button" id="deleteNagadBtn" type="button"
+          style="background:#6e2020;">
+          DELETE NAGAD NUMBER
+        </button>
+
+        <p id="nagadAdminResult" aria-live="polite"></p>
+      </div>
+
+      <p id="adminSettingsLoadResult" aria-live="polite"></p>
+    </div>
+  `;
+
+  $("saveBkashBtn")?.addEventListener("click", () => saveAdminPaymentNumber("bkash"));
+  $("saveNagadBtn")?.addEventListener("click", () => saveAdminPaymentNumber("nagad"));
+
+  $("deleteBkashBtn")?.addEventListener("click", () => deleteAdminPaymentNumber("bkash"));
+  $("deleteNagadBtn")?.addEventListener("click", () => deleteAdminPaymentNumber("nagad"));
+
+  await loadAdminPaymentNumbers();
+}
+
+
+// ==================================================
+// LOAD ADMIN PAYMENT NUMBERS
+// ==================================================
+
+async function loadAdminPaymentNumbers() {
+  if (!isAdmin || !currentUser || currentUser.id !== ADMIN_UID) return;
+
+  const { data, error } = await supabaseClient
+    .from("virtual_credit_settings")
+    .select("virtual_a_number,virtual_b_number")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (error) {
+    showResult(
+      "adminSettingsLoadResult",
+      "নম্বর লোড করা যায়নি: " + error.message,
+      "error"
+    );
+    return;
+  }
+
+  if (!data) {
+    showResult(
+      "adminSettingsLoadResult",
+      "Settings record পাওয়া যায়নি।",
+      "error"
+    );
+    return;
+  }
+
+  $("adminBkashNumber").value = data.virtual_a_number || "";
+  $("adminNagadNumber").value = data.virtual_b_number || "";
+
+  showResult(
+    "adminSettingsLoadResult",
+    "বর্তমান Payment Number লোড হয়েছে।",
+    "success"
+  );
+}
+
+
+// ==================================================
+// SAVE / CHANGE PAYMENT NUMBER
+// ==================================================
+
+function validBangladeshNumber(number) {
+  return /^(01[3-9][0-9]{8}|\+8801[3-9][0-9]{8})$/.test(
+    String(number || "").replace(/[ -]/g, "")
+  );
+}
+
+async function saveAdminPaymentNumber(method) {
+  if (!isAdmin || !currentUser || currentUser.id !== ADMIN_UID) return;
+
+  const isBkash = method === "bkash";
+  const inputId = isBkash ? "adminBkashNumber" : "adminNagadNumber";
+  const resultId = isBkash ? "bkashAdminResult" : "nagadAdminResult";
+  const buttonId = isBkash ? "saveBkashBtn" : "saveNagadBtn";
+
+  const button = $(buttonId);
+  const newNumber = $(inputId).value.trim();
+
+  if (!validBangladeshNumber(newNumber)) {
+    return showResult(resultId, "সঠিক বাংলাদেশি Mobile Number লিখুন।", "error");
+  }
+
+  setButtonLoading(button, true, "SAVING...", isBkash ? "SAVE / CHANGE BKASH" : "SAVE / CHANGE NAGAD");
+
+  try {
+    const { data: currentSettings, error: readError } = await supabaseClient
+      .from("virtual_credit_settings")
+      .select("virtual_a_number,virtual_b_number")
+      .eq("id", 1)
+      .maybeSingle();
+
+    if (readError) throw readError;
+    if (!currentSettings) throw new Error("Settings record পাওয়া যায়নি।");
+
+    const bkash = isBkash
+      ? newNumber
+      : currentSettings.virtual_a_number || "";
+
+    const nagad = isBkash
+      ? currentSettings.virtual_b_number || ""
+      : newNumber;
+
+    const { data, error } = await supabaseClient.rpc(
+      "admin_update_virtual_credit_numbers",
+      {
+        p_virtual_a_number: bkash,
+        p_virtual_b_number: nagad
+      }
+    );
+
+    if (error) throw error;
+
+    showResult(
+      resultId,
+      data || "নম্বর সফলভাবে Save হয়েছে।",
+      "success"
+    );
+
+  } catch (error) {
+    showResult(resultId, "Save করা যায়নি: " + error.message, "error");
+  } finally {
+    setButtonLoading(
+      button,
+      false,
+      "SAVING...",
+      isBkash ? "SAVE / CHANGE BKASH" : "SAVE / CHANGE NAGAD"
+    );
+  }
+}
+
+
+// ==================================================
+// DELETE PAYMENT NUMBER
+// ==================================================
+
+async function deleteAdminPaymentNumber(method) {
+  if (!isAdmin || !currentUser || currentUser.id !== ADMIN_UID) return;
+
+  const isBkash = method === "bkash";
+  const inputId = isBkash ? "adminBkashNumber" : "adminNagadNumber";
+  const resultId = isBkash ? "bkashAdminResult" : "nagadAdminResult";
+  const buttonId = isBkash ? "deleteBkashBtn" : "deleteNagadBtn";
+
+  const label = isBkash ? "বিকাশ" : "নগদ";
+
+  if (!$(inputId).value.trim()) {
+    return showResult(resultId, "এই নম্বরটি আগে থেকেই খালি আছে।", "info");
+  }
+
+  if (!confirm("আপনি কি " + label + " নম্বরটি মুছে ফেলতে চান?")) return;
+
+  const button = $(buttonId);
+
+  setButtonLoading(button, true, "DELETING...", isBkash ? "DELETE BKASH NUMBER" : "DELETE NAGAD NUMBER");
+
+  try {
+    const { data: currentSettings, error: readError } = await supabaseClient
+      .from("virtual_credit_settings")
+      .select("virtual_a_number,virtual_b_number")
+      .eq("id", 1)
+      .maybeSingle();
+
+    if (readError) throw readError;
+    if (!currentSettings) throw new Error("Settings record পাওয়া যায়নি।");
+
+    const bkash = isBkash
+      ? ""
+      : currentSettings.virtual_a_number || "";
+
+    const nagad = isBkash
+      ? currentSettings.virtual_b_number || ""
+      : "";
+
+    const { data, error } = await supabaseClient.rpc(
+      "admin_update_virtual_credit_numbers",
+      {
+        p_virtual_a_number: bkash,
+        p_virtual_b_number: nagad
+      }
+    );
+
+    if (error) throw error;
+
+    $(inputId).value = "";
+
+    showResult(
+      resultId,
+      data || label + " নম্বর মুছে ফেলা হয়েছে।",
+      "success"
+    );
+
+  } catch (error) {
+    showResult(resultId, "Delete করা যায়নি: " + error.message, "error");
+  } finally {
+    setButtonLoading(
+      button,
+      false,
+      "DELETING...",
+      isBkash ? "DELETE BKASH NUMBER" : "DELETE NAGAD NUMBER"
+    );
+  }
+}
+
+
+// ==================================================
+// WALLET PAGE
 // ==================================================
 
 function paymentMethodLabel(method) {
   if (method === "virtual_a") return "বিকাশ";
   if (method === "virtual_b") return "নগদ";
+
   return escapeHTML(method || "Unknown");
 }
 
 async function renderWalletPage() {
   const content = $("walletContent");
+
   if (!content || !currentPlayer || isBlocked) return;
 
   content.innerHTML = `<div class="premium-panel">Wallet লোড হচ্ছে...</div>`;
@@ -524,17 +828,20 @@ async function renderWalletPage() {
   const results = await Promise.all([
     supabaseClient.from("virtual_credit_settings")
       .select("virtual_a_number,virtual_b_number")
-      .limit(1).maybeSingle(),
+      .eq("id", 1)
+      .maybeSingle(),
 
     supabaseClient.from("deposit_requests")
       .select("id,amount,payment_method,reference_id,status,created_at")
       .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false }).limit(10),
+      .order("created_at", { ascending: false })
+      .limit(10),
 
     supabaseClient.from("withdrawal_requests")
       .select("id,mobile_number,amount,status,created_at")
       .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false }).limit(10)
+      .order("created_at", { ascending: false })
+      .limit(10)
   ]);
 
   const settings = results[0].error ? null : results[0].data;
@@ -551,8 +858,10 @@ async function renderWalletPage() {
         <span>♛ BIKASH12 BAJI</span>
         <span>ROYAL WALLET</span>
       </div>
+
       <p>AVAILABLE BALANCE</p>
       <h1>${money(currentPlayer.coins)}</h1>
+
       <div class="wallet-hero-bottom">
         <span>✦ PLAYER WALLET</span>
         <span>SECURE ACCOUNT</span>
@@ -564,16 +873,14 @@ async function renderWalletPage() {
       <p class="wallet-subtitle">আপনার Payment Method নির্বাচন করুন</p>
 
       <div class="wallet-methods">
-        <button type="button"
-          class="wallet-method selected"
+        <button type="button" class="wallet-method selected"
           data-method="virtual_a">
           <span class="wallet-method-icon bkash-icon">b</span>
           <strong>বিকাশ</strong>
           <small>bKash</small>
         </button>
 
-        <button type="button"
-          class="wallet-method"
+        <button type="button" class="wallet-method"
           data-method="virtual_b">
           <span class="wallet-method-icon nagad-icon">N</span>
           <strong>নগদ</strong>
@@ -583,38 +890,45 @@ async function renderWalletPage() {
 
       <div class="wallet-payment-number">
         <span id="depositNumberLabel">বিকাশ নম্বর</span>
+
         <strong id="depositNumberValue">
           ${escapeHTML(settings?.virtual_a_number || "Admin এখনো নম্বর সেট করেননি")}
         </strong>
+
         <button type="button" class="wallet-copy-btn"
           id="copyDepositNumberBtn">COPY NUMBER</button>
       </div>
 
       <form id="depositForm" class="wallet-form">
         <label>কত কয়েন নিতে চান?</label>
+
         <input id="depositAmount" type="number"
           min="1" step="1" inputmode="numeric"
           placeholder="Amount লিখুন" required>
 
         <label>Reference ID (Optional)</label>
+
         <input id="depositReference" type="text"
           maxlength="100" placeholder="Reference ID লিখুন">
 
         <button class="wallet-submit deposit-submit" type="submit">
           ＋ SUBMIT DEPOSIT REQUEST
         </button>
+
         <p id="depositResult" aria-live="polite"></p>
       </form>
     </div>
 
     <div class="wallet-section withdrawal-section">
       <h3>－ WITHDRAW COINS</h3>
+
       <p class="wallet-subtitle">
         Withdrawal Request-এর জন্য আপনার Transaction PIN প্রয়োজন।
       </p>
 
       <form id="withdrawalForm" class="wallet-form">
         <label>Your Mobile Number</label>
+
         <input id="withdrawalMobile" type="tel"
           inputmode="numeric" maxlength="11"
           pattern="01[3-9][0-9]{8}"
@@ -622,11 +936,13 @@ async function renderWalletPage() {
           placeholder="01XXXXXXXXX" required>
 
         <label>Withdrawal Amount</label>
+
         <input id="withdrawalAmount" type="number"
           min="1" step="1" inputmode="numeric"
           placeholder="Amount লিখুন" required>
 
         <label>Transaction PIN</label>
+
         <input id="withdrawalPin" type="password"
           inputmode="numeric" maxlength="6"
           pattern="[0-9]{4}|[0-9]{6}"
@@ -635,21 +951,25 @@ async function renderWalletPage() {
         <button class="wallet-submit withdrawal-submit" type="submit">
           － SUBMIT WITHDRAWAL REQUEST
         </button>
+
         <p id="withdrawalResult" aria-live="polite"></p>
       </form>
     </div>
 
     <div class="wallet-section">
       <h3>▤ DEPOSIT HISTORY</h3>
+
       ${deposits.length ? deposits.map(item => `
         <div class="wallet-history-item">
           <div>
             <strong>${money(item.amount)}</strong>
             <p>${paymentMethodLabel(item.payment_method)}</p>
+
             ${item.reference_id
               ? `<small>Ref: ${escapeHTML(item.reference_id)}</small>`
               : ""}
           </div>
+
           <div class="wallet-history-right">
             <span class="wallet-status">${statusText(item.status)}</span>
             <small>${formatDate(item.created_at)}</small>
@@ -660,12 +980,14 @@ async function renderWalletPage() {
 
     <div class="wallet-section">
       <h3>▤ WITHDRAWAL HISTORY</h3>
+
       ${withdrawals.length ? withdrawals.map(item => `
         <div class="wallet-history-item">
           <div>
             <strong>${money(item.amount)}</strong>
             <p>${escapeHTML(item.mobile_number)}</p>
           </div>
+
           <div class="wallet-history-right">
             <span class="wallet-status">${statusText(item.status)}</span>
             <small>${formatDate(item.created_at)}</small>
@@ -677,14 +999,23 @@ async function renderWalletPage() {
 
   let selectedMethod = "virtual_a";
 
+  const methodField = document.createElement("input");
+  methodField.type = "hidden";
+  methodField.id = "depositMethod";
+  methodField.value = selectedMethod;
+
+  $("depositForm").appendChild(methodField);
+
   function updatePaymentMethod(method) {
     selectedMethod = method;
+    methodField.value = method;
 
     document.querySelectorAll(".wallet-method").forEach(btn => {
       btn.classList.toggle("selected", btn.dataset.method === method);
     });
 
     const isNagad = method === "virtual_b";
+
     const number = isNagad
       ? settings?.virtual_b_number
       : settings?.virtual_a_number;
@@ -706,33 +1037,26 @@ async function renderWalletPage() {
     const number = $("depositNumberValue").textContent.trim();
 
     if (!number || number.includes("সেট করেননি")) {
-      return showResult("depositResult",
-        "Admin এখনো Payment Number সেট করেননি।", "error");
+      return showResult(
+        "depositResult",
+        "Admin এখনো Payment Number সেট করেননি।",
+        "error"
+      );
     }
 
     try {
       await navigator.clipboard.writeText(number);
+
       showResult("depositResult", "Number Copy হয়েছে।", "success");
+
     } catch {
       showResult("depositResult", "Copy করা যায়নি।", "error");
     }
   });
 
-  $("depositForm")?.addEventListener("submit", event => {
-    event.preventDefault();
-    $("depositMethod").value = selectedMethod;
-    submitDepositRequest(event);
-  });
-
-  // Hidden compatibility field for existing deposit handler
-  const methodField = document.createElement("input");
-  methodField.type = "hidden";
-  methodField.id = "depositMethod";
-  methodField.value = selectedMethod;
-  $("depositForm").appendChild(methodField);
-
+  $("depositForm")?.addEventListener("submit", submitDepositRequest);
   $("withdrawalForm")?.addEventListener("submit", submitWithdrawalRequest);
-       }
+}
 
 
 // ==================================================
@@ -741,19 +1065,20 @@ async function renderWalletPage() {
 
 async function submitDepositRequest(event) {
   event.preventDefault();
+
   if (!currentUser || isBlocked) return;
 
   const amount = Number($("depositAmount").value);
   const method = $("depositMethod").value;
   const reference = $("depositReference").value.trim();
+
   const button = $("depositForm").querySelector('[type="submit"]');
 
   if (!Number.isSafeInteger(amount) || amount <= 0) {
     return showResult("depositResult", "সঠিক Amount লিখুন।", "error");
   }
 
-  setButtonLoading(button, true, "SUBMITTING...", "SUBMIT DEPOSIT REQUEST");
-  showResult("depositResult", "আপনার Request পাঠানো হচ্ছে...");
+  setButtonLoading(button, true, "SUBMITTING...", "＋ SUBMIT DEPOSIT REQUEST");
 
   try {
     const { data, error } = await supabaseClient.rpc("submit_deposit_request", {
@@ -765,10 +1090,18 @@ async function submitDepositRequest(event) {
     if (error) throw error;
 
     await renderWalletPage();
-    showResult("depositResult", data || "Deposit Request সফলভাবে জমা হয়েছে।", "success");
+
+    alert(data || "Deposit Request সফলভাবে জমা হয়েছে।");
+
   } catch (error) {
     showResult("depositResult", "Request জমা হয়নি: " + error.message, "error");
-    setButtonLoading(button, false, "SUBMITTING...", "SUBMIT DEPOSIT REQUEST");
+
+    setButtonLoading(
+      button,
+      false,
+      "SUBMITTING...",
+      "＋ SUBMIT DEPOSIT REQUEST"
+    );
   }
 }
 
@@ -779,11 +1112,13 @@ async function submitDepositRequest(event) {
 
 async function submitWithdrawalRequest(event) {
   event.preventDefault();
+
   if (!currentUser || isBlocked) return;
 
   const mobile = $("withdrawalMobile").value.trim();
   const amount = Number($("withdrawalAmount").value);
   const pin = $("withdrawalPin").value.trim();
+
   const button = $("withdrawalForm").querySelector('[type="submit"]');
 
   if (!/^01[3-9]\d{8}$/.test(mobile)) {
@@ -798,8 +1133,7 @@ async function submitWithdrawalRequest(event) {
     return showResult("withdrawalResult", "PIN অবশ্যই ৪ অথবা ৬ সংখ্যার হতে হবে।", "error");
   }
 
-  setButtonLoading(button, true, "SUBMITTING...", "SUBMIT WITHDRAWAL REQUEST");
-  showResult("withdrawalResult", "আপনার Request যাচাই করা হচ্ছে...");
+  setButtonLoading(button, true, "SUBMITTING...", "－ SUBMIT WITHDRAWAL REQUEST");
 
   try {
     const { data, error } = await supabaseClient.rpc("submit_withdrawal_request", {
@@ -811,10 +1145,18 @@ async function submitWithdrawalRequest(event) {
     if (error) throw error;
 
     await renderWalletPage();
-    showResult("withdrawalResult", data || "Withdrawal Request জমা হয়েছে।", "success");
+
+    alert(data || "Withdrawal Request জমা হয়েছে।");
+
   } catch (error) {
     showResult("withdrawalResult", "Request জমা হয়নি: " + error.message, "error");
-    setButtonLoading(button, false, "SUBMITTING...", "SUBMIT WITHDRAWAL REQUEST");
+
+    setButtonLoading(
+      button,
+      false,
+      "SUBMITTING...",
+      "－ SUBMIT WITHDRAWAL REQUEST"
+    );
   }
 }
 
@@ -825,6 +1167,7 @@ async function submitWithdrawalRequest(event) {
 
 async function renderSecurityPage() {
   const content = $("securityContent");
+
   if (!content || !currentPlayer || isBlocked) return;
 
   const hasPin = Boolean(currentPlayer.pin_created_at);
@@ -832,35 +1175,59 @@ async function renderSecurityPage() {
   content.innerHTML = `
     <div class="premium-panel">
       ${panelHeading("♛ SECURITY CENTER")}
+
       <p>Transaction PIN আপনার Withdrawal Request নিরাপদ রাখে।</p>
-      <p>PIN Status: <strong style="color:#ffe49a;">${hasPin ? "PIN CREATED" : "PIN NOT SET"}</strong></p>
+
+      <p>PIN Status:
+        <strong style="color:#ffe49a;">
+          ${hasPin ? "PIN CREATED" : "PIN NOT SET"}
+        </strong>
+      </p>
 
       ${!hasPin ? `
         <h3>CREATE TRANSACTION PIN</h3>
+
         <form id="createPinForm">
           <label>New PIN</label>
-          <input id="newPin" type="password" inputmode="numeric" maxlength="6"
+
+          <input id="newPin" type="password"
+            inputmode="numeric" maxlength="6"
             pattern="[0-9]{4}|[0-9]{6}" required>
+
           <label>Confirm PIN</label>
-          <input id="confirmPin" type="password" inputmode="numeric" maxlength="6"
+
+          <input id="confirmPin" type="password"
+            inputmode="numeric" maxlength="6"
             pattern="[0-9]{4}|[0-9]{6}" required>
+
           <button class="royal-button" type="submit">CREATE PIN</button>
+
           <p id="createPinResult" aria-live="polite"></p>
         </form>
       ` : `
         <p style="color:#75e6a0;">আপনার Transaction PIN তৈরি করা আছে।</p>
+
         <h3>FORGOT TRANSACTION PIN?</h3>
+
         <p>Profile-এ থাকা Mobile Number দিয়ে Admin-এর কাছে PIN Reset Request পাঠান।</p>
+
         <form id="pinResetForm">
           <label>Profile Mobile Number</label>
-          <input id="pinResetMobile" type="tel" inputmode="numeric" maxlength="11"
+
+          <input id="pinResetMobile" type="tel"
+            inputmode="numeric" maxlength="11"
             value="${escapeHTML(currentPlayer.mobile_number || "")}" required>
-          <button class="royal-button" type="submit">SEND PIN RESET REQUEST</button>
+
+          <button class="royal-button" type="submit">
+            SEND PIN RESET REQUEST
+          </button>
+
           <p id="pinResetResult" aria-live="polite"></p>
         </form>
       `}
 
       <hr style="border-color:rgba(212,175,55,.3);margin:20px 0;">
+
       <p>Password পরিবর্তন করতে Login পেজের Forgot Password ব্যবহার করুন।</p>
     </div>
   `;
@@ -876,10 +1243,12 @@ async function renderSecurityPage() {
 
 async function createTransactionPin(event) {
   event.preventDefault();
+
   if (!currentUser || isBlocked || !currentPlayer) return;
 
   const pin = $("newPin").value.trim();
   const confirmPin = $("confirmPin").value.trim();
+
   const button = $("createPinForm").querySelector('[type="submit"]');
 
   if (!/^(?:\d{4}|\d{6})$/.test(pin)) {
@@ -900,10 +1269,14 @@ async function createTransactionPin(event) {
     if (error) throw error;
 
     currentPlayer.pin_created_at = new Date().toISOString();
+
     await renderSecurityPage();
+
     alert(data || "Transaction PIN তৈরি হয়েছে।");
+
   } catch (error) {
     showResult("createPinResult", "PIN তৈরি হয়নি: " + error.message, "error");
+
     setButtonLoading(button, false, "CREATING...", "CREATE PIN");
   }
 }
@@ -915,6 +1288,7 @@ async function createTransactionPin(event) {
 
 async function submitPinResetRequest(event) {
   event.preventDefault();
+
   if (!currentUser || isBlocked) return;
 
   const mobile = $("pinResetMobile").value.trim();
@@ -933,8 +1307,14 @@ async function submitPinResetRequest(event) {
 
     if (error) throw error;
 
-    showResult("pinResetResult", data || "PIN Reset Request Admin-এর কাছে পাঠানো হয়েছে।", "success");
+    showResult(
+      "pinResetResult",
+      data || "PIN Reset Request Admin-এর কাছে পাঠানো হয়েছে।",
+      "success"
+    );
+
     $("pinResetForm").reset();
+
   } catch (error) {
     showResult("pinResetResult", "Request পাঠানো যায়নি: " + error.message, "error");
   } finally {
@@ -949,6 +1329,7 @@ async function submitPinResetRequest(event) {
 
 async function renderHistoryPage() {
   const content = $("historyContent");
+
   if (!content || !currentUser || !currentPlayer || isBlocked) return;
 
   content.innerHTML = `<div class="premium-panel">Transaction History লোড হচ্ছে...</div>`;
@@ -968,8 +1349,10 @@ async function renderHistoryPage() {
     content.innerHTML = `
       <div class="premium-panel">
         ${panelHeading("♛ TRANSACTION HISTORY")}
+
         <h2 style="color:#ffe49a;">${money(currentPlayer.coins)}</h2>
         <p>Current Wallet Balance</p>
+
         <hr style="border-color:rgba(212,175,55,.3);">
 
         ${transactions.length ? transactions.map(item => `
@@ -978,17 +1361,23 @@ async function renderHistoryPage() {
             <p>Amount: ${money(item.amount)}</p>
             <p>Previous Balance: ${money(item.balance_before)}</p>
             <p>New Balance: ${money(item.balance_after)}</p>
+
             ${item.note ? `<p>Note: ${escapeHTML(item.note)}</p>` : ""}
+
             <small>${formatDate(item.created_at)}</small>
           </div>
         `).join("") : "<p>এখনো কোনো Transaction History নেই।</p>"}
       </div>
     `;
+
   } catch (error) {
     console.error(error);
+
     content.innerHTML = `
       <div class="premium-panel">
-        <p style="color:#ff7777;">History লোড করা যায়নি: ${escapeHTML(error.message)}</p>
+        <p style="color:#ff7777;">
+          History লোড করা যায়নি: ${escapeHTML(error.message)}
+        </p>
       </div>
     `;
   }
@@ -1007,19 +1396,27 @@ function renderSupport() {
   content.innerHTML = `
     <div class="premium-panel">
       <h3>Contact Admin</h3>
-      ${isBlocked ? "<p>Your account is inactive. You can still contact Support.</p>" : ""}
+
+      ${isBlocked
+        ? "<p>Your account is inactive. You can still contact Support.</p>"
+        : ""}
 
       <form id="supportForm">
         <label>Subject</label>
-        <input id="supportSubject" type="text" minlength="2" maxlength="100"
+
+        <input id="supportSubject" type="text"
+          minlength="2" maxlength="100"
           placeholder="সমস্যার বিষয় লিখুন" required>
 
         <label>Message</label>
-        <textarea id="supportMessage" minlength="5" maxlength="3000"
+
+        <textarea id="supportMessage"
+          minlength="5" maxlength="3000"
           placeholder="আপনার সমস্যাটি লিখুন" required></textarea>
 
         <button class="royal-button" type="submit">SEND MESSAGE</button>
       </form>
+
       <div id="supportResult" aria-live="polite"></div>
     </div>
   `;
@@ -1029,10 +1426,12 @@ function renderSupport() {
 
     const subject = $("supportSubject").value.trim();
     const message = $("supportMessage").value.trim();
+
     const result = $("supportResult");
     const button = $("supportForm").querySelector('[type="submit"]');
 
     setButtonLoading(button, true, "SENDING...", "SEND MESSAGE");
+
     result.textContent = "Sending...";
 
     try {
@@ -1045,6 +1444,7 @@ function renderSupport() {
 
       result.textContent = "আপনার Message Admin-এর কাছে পাঠানো হয়েছে।";
       $("supportForm").reset();
+
     } catch (error) {
       result.textContent = "Message পাঠানো যায়নি: " + error.message;
     } finally {
@@ -1066,6 +1466,11 @@ function showPage(pageName) {
     pageName = "support";
   }
 
+  // Admin page is available only to authorized Admin
+  if (pageName === "admin" && !isAdmin) {
+    pageName = "home";
+  }
+
   document.querySelectorAll(".app-page").forEach(page => {
     page.hidden = true;
   });
@@ -1078,18 +1483,24 @@ function showPage(pageName) {
     renderPlayerInfo();
   }
 
-  if (pageName === "wallet" && !isAdmin) renderWalletPage();
-  if (pageName === "security" && !isAdmin) renderSecurityPage();
-  if (pageName === "history" && !isAdmin) renderHistoryPage();
-  if (pageName === "support") renderSupport();
+  if (pageName === "wallet" && !isAdmin) {
+    renderWalletPage();
+  }
 
-  if (pageName === "admin" && isAdmin && $("adminContent")) {
-    $("adminContent").innerHTML = `
-      <div class="premium-panel">
-        <h3>♛ ADMIN PANEL</h3>
-        <p>Admin management features পরবর্তী ধাপে যুক্ত করা হবে।</p>
-      </div>
-    `;
+  if (pageName === "security" && !isAdmin) {
+    renderSecurityPage();
+  }
+
+  if (pageName === "history" && !isAdmin) {
+    renderHistoryPage();
+  }
+
+  if (pageName === "support") {
+    renderSupport();
+  }
+
+  if (pageName === "admin" && isAdmin) {
+    renderAdminPanel();
   }
 
   if ($("sideMenu")) $("sideMenu").hidden = true;
@@ -1107,7 +1518,9 @@ document.querySelectorAll("[data-page]").forEach(button => {
 });
 
 $("menuBtn")?.addEventListener("click", () => {
-  if ($("sideMenu")) $("sideMenu").hidden = !$("sideMenu").hidden;
+  if ($("sideMenu")) {
+    $("sideMenu").hidden = !$("sideMenu").hidden;
+  }
 });
 
 
@@ -1145,6 +1558,7 @@ $("logoutBtn")?.addEventListener("click", logoutUser);
 async function initializeApp() {
   try {
     const { data, error } = await supabaseClient.auth.getSession();
+
     if (error) throw error;
 
     if (data.session?.user) {
@@ -1152,10 +1566,13 @@ async function initializeApp() {
     } else {
       if ($("authSection")) $("authSection").hidden = false;
       if ($("appSection")) $("appSection").hidden = true;
+
       showAuthForm("loginForm");
     }
+
   } catch (error) {
     console.error("Initialization error:", error);
+
     showMessage("App চালু করা যায়নি: " + error.message, "error");
   }
 }
