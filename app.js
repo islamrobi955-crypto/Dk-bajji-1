@@ -506,7 +506,7 @@ function renderPlayerInfo() {
 
 
 // ==================================================
-// WALLET PAGE — BIKASH + NAGAD
+// WALLET PAGE — ROYAL BIKASH + NAGAD DESIGN
 // ==================================================
 
 function paymentMethodLabel(method) {
@@ -524,20 +524,17 @@ async function renderWalletPage() {
   const results = await Promise.all([
     supabaseClient.from("virtual_credit_settings")
       .select("virtual_a_number,virtual_b_number")
-      .limit(1)
-      .maybeSingle(),
+      .limit(1).maybeSingle(),
 
     supabaseClient.from("deposit_requests")
       .select("id,amount,payment_method,reference_id,status,created_at")
       .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false })
-      .limit(10),
+      .order("created_at", { ascending: false }).limit(10),
 
     supabaseClient.from("withdrawal_requests")
       .select("id,mobile_number,amount,status,created_at")
       .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false })
-      .limit(10)
+      .order("created_at", { ascending: false }).limit(10)
   ]);
 
   const settings = results[0].error ? null : results[0].data;
@@ -549,121 +546,145 @@ async function renderWalletPage() {
   }
 
   content.innerHTML = `
-    <div class="premium-panel">
-      ${panelHeading("♛ MY VIRTUAL WALLET")}
-      <p>Available Balance</p>
-      <h2 style="color:#ffe49a;font-size:30px;">
-        ${money(currentPlayer.coins)}
-      </h2>
-      <p>আপনার বর্তমান Wallet Balance</p>
+    <div class="wallet-hero">
+      <div class="wallet-hero-top">
+        <span>♛ BIKASH12 BAJI</span>
+        <span>ROYAL WALLET</span>
+      </div>
+      <p>AVAILABLE BALANCE</p>
+      <h1>${money(currentPlayer.coins)}</h1>
+      <div class="wallet-hero-bottom">
+        <span>✦ PLAYER WALLET</span>
+        <span>SECURE ACCOUNT</span>
+      </div>
     </div>
 
-    <div class="premium-panel" style="margin-top:15px;">
-      ${panelHeading("＋ DEPOSIT REQUEST")}
-      <p>বিকাশ অথবা নগদ নির্বাচন করুন।</p>
+    <div class="wallet-section">
+      <h3>＋ ADD COINS</h3>
+      <p class="wallet-subtitle">আপনার Payment Method নির্বাচন করুন</p>
 
-      <label>Payment Method</label>
-      <select id="depositMethod" style="width:100%;">
-        <option value="virtual_a">বিকাশ</option>
-        <option value="virtual_b">নগদ</option>
-      </select>
+      <div class="wallet-methods">
+        <button type="button"
+          class="wallet-method selected"
+          data-method="virtual_a">
+          <span class="wallet-method-icon bkash-icon">b</span>
+          <strong>বিকাশ</strong>
+          <small>bKash</small>
+        </button>
 
-      <div style="padding:12px;border:1px solid #d4af37;
-        border-radius:10px;margin:10px 0;">
-
-        <p id="depositNumberLabel">বিকাশ নম্বর</p>
-
-        <strong id="depositNumberValue">
-          ${escapeHTML(settings?.virtual_a_number || "Admin এখনো নম্বর সেট করেননি")}
-        </strong>
-
-        <button type="button" class="royal-button"
-          id="copyDepositNumberBtn">
-          COPY NUMBER
+        <button type="button"
+          class="wallet-method"
+          data-method="virtual_b">
+          <span class="wallet-method-icon nagad-icon">N</span>
+          <strong>নগদ</strong>
+          <small>Nagad</small>
         </button>
       </div>
 
-      <form id="depositForm">
-        <label>Amount</label>
-        <input id="depositAmount" type="number" min="1"
-          step="1" inputmode="numeric" required>
+      <div class="wallet-payment-number">
+        <span id="depositNumberLabel">বিকাশ নম্বর</span>
+        <strong id="depositNumberValue">
+          ${escapeHTML(settings?.virtual_a_number || "Admin এখনো নম্বর সেট করেননি")}
+        </strong>
+        <button type="button" class="wallet-copy-btn"
+          id="copyDepositNumberBtn">COPY NUMBER</button>
+      </div>
+
+      <form id="depositForm" class="wallet-form">
+        <label>কত কয়েন নিতে চান?</label>
+        <input id="depositAmount" type="number"
+          min="1" step="1" inputmode="numeric"
+          placeholder="Amount লিখুন" required>
 
         <label>Reference ID (Optional)</label>
-        <input id="depositReference" type="text" maxlength="100">
+        <input id="depositReference" type="text"
+          maxlength="100" placeholder="Reference ID লিখুন">
 
-        <button class="royal-button" type="submit">
-          SUBMIT DEPOSIT REQUEST
+        <button class="wallet-submit deposit-submit" type="submit">
+          ＋ SUBMIT DEPOSIT REQUEST
         </button>
-
         <p id="depositResult" aria-live="polite"></p>
       </form>
     </div>
 
-    <div class="premium-panel" style="margin-top:15px;">
-      ${panelHeading("－ WITHDRAWAL REQUEST")}
-      <p>Withdrawal-এর জন্য Transaction PIN প্রয়োজন।</p>
+    <div class="wallet-section withdrawal-section">
+      <h3>－ WITHDRAW COINS</h3>
+      <p class="wallet-subtitle">
+        Withdrawal Request-এর জন্য আপনার Transaction PIN প্রয়োজন।
+      </p>
 
-      <form id="withdrawalForm">
+      <form id="withdrawalForm" class="wallet-form">
         <label>Your Mobile Number</label>
         <input id="withdrawalMobile" type="tel"
           inputmode="numeric" maxlength="11"
           pattern="01[3-9][0-9]{8}"
           value="${escapeHTML(currentPlayer.mobile_number || "")}"
-          required>
+          placeholder="01XXXXXXXXX" required>
 
-        <label>Amount</label>
+        <label>Withdrawal Amount</label>
         <input id="withdrawalAmount" type="number"
-          min="1" step="1" inputmode="numeric" required>
+          min="1" step="1" inputmode="numeric"
+          placeholder="Amount লিখুন" required>
 
         <label>Transaction PIN</label>
         <input id="withdrawalPin" type="password"
           inputmode="numeric" maxlength="6"
-          pattern="[0-9]{4}|[0-9]{6}" required>
+          pattern="[0-9]{4}|[0-9]{6}"
+          placeholder="৪ অথবা ৬ সংখ্যার PIN" required>
 
-        <button class="royal-button" type="submit">
-          SUBMIT WITHDRAWAL REQUEST
+        <button class="wallet-submit withdrawal-submit" type="submit">
+          － SUBMIT WITHDRAWAL REQUEST
         </button>
-
         <p id="withdrawalResult" aria-live="polite"></p>
       </form>
     </div>
 
-    <div class="premium-panel" style="margin-top:15px;">
-      ${panelHeading("DEPOSIT REQUEST HISTORY")}
-
+    <div class="wallet-section">
+      <h3>▤ DEPOSIT HISTORY</h3>
       ${deposits.length ? deposits.map(item => `
-        <div style="border-bottom:1px solid rgba(212,175,55,.25);
-          padding:10px 0;">
-          <strong>${money(item.amount)}</strong>
-          <p>Payment Method: ${paymentMethodLabel(item.payment_method)}</p>
-          ${item.reference_id
-            ? `<p>Reference ID: ${escapeHTML(item.reference_id)}</p>`
-            : ""}
-          <p>Status: ${statusText(item.status)}</p>
-          <small>${formatDate(item.created_at)}</small>
+        <div class="wallet-history-item">
+          <div>
+            <strong>${money(item.amount)}</strong>
+            <p>${paymentMethodLabel(item.payment_method)}</p>
+            ${item.reference_id
+              ? `<small>Ref: ${escapeHTML(item.reference_id)}</small>`
+              : ""}
+          </div>
+          <div class="wallet-history-right">
+            <span class="wallet-status">${statusText(item.status)}</span>
+            <small>${formatDate(item.created_at)}</small>
+          </div>
         </div>
       `).join("") : "<p>এখনো কোনো Deposit Request নেই।</p>"}
     </div>
 
-    <div class="premium-panel" style="margin-top:15px;">
-      ${panelHeading("WITHDRAWAL REQUEST HISTORY")}
-
+    <div class="wallet-section">
+      <h3>▤ WITHDRAWAL HISTORY</h3>
       ${withdrawals.length ? withdrawals.map(item => `
-        <div style="border-bottom:1px solid rgba(212,175,55,.25);
-          padding:10px 0;">
-          <strong>${money(item.amount)}</strong>
-          <p>Mobile: ${escapeHTML(item.mobile_number)}</p>
-          <p>Status: ${statusText(item.status)}</p>
-          <small>${formatDate(item.created_at)}</small>
+        <div class="wallet-history-item">
+          <div>
+            <strong>${money(item.amount)}</strong>
+            <p>${escapeHTML(item.mobile_number)}</p>
+          </div>
+          <div class="wallet-history-right">
+            <span class="wallet-status">${statusText(item.status)}</span>
+            <small>${formatDate(item.created_at)}</small>
+          </div>
         </div>
       `).join("") : "<p>এখনো কোনো Withdrawal Request নেই।</p>"}
     </div>
   `;
 
-  $("depositMethod")?.addEventListener("change", () => {
-    const method = $("depositMethod").value;
-    const isNagad = method === "virtual_b";
+  let selectedMethod = "virtual_a";
 
+  function updatePaymentMethod(method) {
+    selectedMethod = method;
+
+    document.querySelectorAll(".wallet-method").forEach(btn => {
+      btn.classList.toggle("selected", btn.dataset.method === method);
+    });
+
+    const isNagad = method === "virtual_b";
     const number = isNagad
       ? settings?.virtual_b_number
       : settings?.virtual_a_number;
@@ -673,17 +694,20 @@ async function renderWalletPage() {
 
     $("depositNumberValue").textContent =
       number || "Admin এখনো নম্বর সেট করেননি";
+  }
+
+  document.querySelectorAll(".wallet-method").forEach(btn => {
+    btn.addEventListener("click", () => {
+      updatePaymentMethod(btn.dataset.method);
+    });
   });
 
   $("copyDepositNumberBtn")?.addEventListener("click", async () => {
     const number = $("depositNumberValue").textContent.trim();
 
     if (!number || number.includes("সেট করেননি")) {
-      return showResult(
-        "depositResult",
-        "Admin এখনো Payment Number সেট করেননি।",
-        "error"
-      );
+      return showResult("depositResult",
+        "Admin এখনো Payment Number সেট করেননি।", "error");
     }
 
     try {
@@ -694,7 +718,19 @@ async function renderWalletPage() {
     }
   });
 
-  $("depositForm")?.addEventListener("submit", submitDepositRequest);
+  $("depositForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    $("depositMethod").value = selectedMethod;
+    submitDepositRequest(event);
+  });
+
+  // Hidden compatibility field for existing deposit handler
+  const methodField = document.createElement("input");
+  methodField.type = "hidden";
+  methodField.id = "depositMethod";
+  methodField.value = selectedMethod;
+  $("depositForm").appendChild(methodField);
+
   $("withdrawalForm")?.addEventListener("submit", submitWithdrawalRequest);
        }
 
